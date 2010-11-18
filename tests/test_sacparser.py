@@ -80,3 +80,9 @@ def test_mult_start_end():
     npt.assert_equal(starts, [1,15])
     npt.assert_equal(stops, [7,19])
 
+def test_pitjb():
+    "online parser"
+    v=np.zeros(21)
+    v[1:4] =  [30,40,30]
+    peaks = parser.pitjb_online_parser(v)
+    npt.assert_equals([4],peaks)

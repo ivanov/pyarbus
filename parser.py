@@ -30,6 +30,12 @@ testParams = get_default_params(
         saccade_offset_verify_time = 4,
         )
 
+def pitjb_online_parser(v, p=None):
+    """Online parser which extracts saccades based on peak velocity that is
+    above some treshold.
+
+    """
+
 def eyelink_event_parser(v, a, p=None):
     """Parser which should be equivalent to the Eyelink event parser with the
     standard (cognitive settings)
