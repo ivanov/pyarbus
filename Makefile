@@ -1,0 +1,2 @@
+default:
+	nosetests -v
