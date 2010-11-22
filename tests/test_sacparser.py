@@ -83,6 +83,14 @@ def test_mult_start_end():
 def test_pitjb():
     "online parser"
     v=np.zeros(21)
-    v[1:4] =  [30,40,30]
-    peaks = parser.pitjb_online_parser(v)
-    npt.assert_equals([4],peaks)
+    v[1:4] =  [5,13,5]
+    peaks,ends = parser.pitjb_online_parser(v, p=p)
+    npt.assert_equal([2],peaks)
+
+def test_pitjb2():
+    "online parser, one peak "
+    v=np.zeros(21)
+    v[1] =  10
+    peaks,ends = parser.pitjb_online_parser(v, p=p)
+    npt.assert_equal([1],peaks)
+
