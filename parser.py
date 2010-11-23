@@ -121,7 +121,7 @@ def pitjb_online_parser(v, p=None):
         else:
             # we're slower than threshold again, must be in a fixation epoch
             v_peak = p.online_vthresh
-    return peaks,ends
+    return np.array(peaks),np.array(ends)
 
 def eyelink_event_parser(v, a, p=None):
     """Parser which should be equivalent to the Eyelink event parser with the
