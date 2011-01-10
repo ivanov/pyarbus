@@ -183,7 +183,6 @@ def eyelink_event_parser(v, a, p=None):
         # missing values in this slice, which would suggest a blink
         if hasattr(v, 'mask') and v.mask[beg:end+1].any() or np.isnan(v[beg:end+1]).any():
             # blink!
-            print "found a blink"
             pass
         else:
             starts.append(beg)
