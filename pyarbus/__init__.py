@@ -26,3 +26,5 @@ from data import *
 import utils
 
 import viz
+
+from testlib import test
