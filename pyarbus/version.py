@@ -94,5 +94,5 @@ PACKAGES = ['pyarbus',
             'pyarbus.tests',
             ]
 PACKAGE_DATA = {"pyarbus": ["LICENSE","tests/*.txt", "tests/*.npy",
-                                  "data/*.txt", "data/*.csv"]}
+                                  "data/*.txt", "data/*.asc", "data/*.gz"]}
 REQUIRES = ["numpy", "matplotlib", "nitime"]
