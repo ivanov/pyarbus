@@ -483,6 +483,8 @@ Examples
         # mmap needs a fileno, so we'll read into a tempfile
         tempf = tempfile.TemporaryFile()
         tempf.write(f.read())
+        # ensure that we mmap the whole file, not a partially written one
+        tempf.flush()
         raw = mmap.mmap(tempf.fileno(), 0, access=mmap.ACCESS_READ)
     else:
         f = file(filename)
