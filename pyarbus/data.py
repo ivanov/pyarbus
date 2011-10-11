@@ -130,6 +130,36 @@ class Saccades(nitime.Events):
                 yf=self.yf[k]
                 )
 
+class Eye(nitime.Events):
+    """Class used for monocular eyetracking data
+
+    Under the hood, it uses the nitime.Events class, but presents the event
+    data keys as attributes, so that after you declare an eye instance,
+
+    >>> time = np.linspace(0,10,11)
+    >>> x,y = np.sin(time),np.cos(time)
+    >>> eye = Eye(time, **dict(x=x,y=y))
+
+    you can then access the data member directly using ``eye.x`` instead of the
+    more awkward ``eye.data['x']``
+
+    Additionally, an instance of an Eye class has the following attributes
+
+    >>> eye.blinks   # None or Epochs
+    >>> eye.discard  # None or Epochs when data should be discarded
+    >>> eye.saccades # None or Saccades
+    >>> eye.sacepochs   # None or Epochs which correspond to the saccades
+
+    XXX: That last bit above is hairy - saccades should subclass epochs, and
+    then have extra attributes hanging off of them
+    """
+    blinks = None
+    discard = None
+    saccades = None
+    sacepochs = None
+    def __getattr__(self,k):
+        return self.data[k]
+
 class Eyelink(object):
     """
 class for Eyelink data
@@ -335,6 +365,11 @@ follow a blink
         """ Mask out data in eye.x and eye.y during discard epochs
         """
         eye = self.eye_used
+
+        if eye.discard is None:
+            log.info("nothing to discard")
+            return
+
         for ep in eye.discard:
             sl=eye.x.epoch2slice(ep)
             start,stop = sl.start,sl.stop
@@ -757,15 +792,12 @@ Examples
                     copy=False)) # typecast as Events,
 
     else:
+        mi = np.ma.masked_invalid
+        d = dict([(n,mi(gaze[n])) for n in gaze.dtype.names[1:]])
         if have_right:
-            mi = np.ma.masked_invalid
-            d = dict([(n,mi(gaze[n])) for n in gaze.dtype.names[1:]])
-            el.r = nitime.Events(time,**d)
+            el.r = Eye(time,**d)
         else:
-            for name in gaze.dtype.names[1:]:
-                el.l[name] = Events(time,v=np.ma.masked_invalid(gaze[name]),
-                        copy=False) # typecast as Events,
-                el.r[name] = None
+            el.l = Eye(time,**d)
 
 
     # eye["x"] = TimeSeries(gaze['x'],
