@@ -623,20 +623,23 @@ Examples
     samplingrate = findall_loadtxt("RATE[\t ]*\d+.\d*",raw,(1,)) 
     dt = 1000/samplingrate[0]
 
-    #XXX: throw error if diff.gaze(['time']) is every either 0 or negative (samples repeated or out of order)
+    #XXX: throw error if diff.gaze(['time']) is ever either 0 or negative (samples repeated or out of order)
     for D in np.arange(len(gaze['time']))[np.diff(gaze['time']) != dt]:
         print "WARNING: discontinuity in eyetracker time series",
         print " at sample ",D,", time ",str(gaze['time'][D:D+2])
-        missing_tstamp= np.concatenate((missing_tstamp,gaze['time'][D:D+2]))
-        t = np.concatenate((t,gaze['time'][prev:D+1], 
-                            np.arange(gaze['time'][D], 
-                                      gaze['time'][D+1],
-                                      dt,dtype='uint64')))
-        # missing values stored as NaNs
-        z = np.ones((gaze['time'][D+1]- gaze['time'][D])/dt) * np.nan
-        # .names[1:] skips over the 'time' field
-        for fn in gaze.dtype.names[1:]:
-            tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:D+1], z))
+        ## XXX: implement a "fill-discontinuous" flag to have this
+        ## functionality again - it was needed for neuropy's events and
+        ## timeseries implementation, but no longer necessary with nitime
+        #missing_tstamp= np.concatenate((missing_tstamp,gaze['time'][D:D+2]))
+        #t = np.concatenate((t,gaze['time'][prev:D+1], 
+        #                    np.arange(gaze['time'][D], 
+        #                              gaze['time'][D+1],
+        #                              dt,dtype='uint64')))
+        ## missing values stored as NaNs
+        #z = np.ones((gaze['time'][D+1]- gaze['time'][D])/dt) * np.nan
+        ## .names[1:] skips over the 'time' field
+        #for fn in gaze.dtype.names[1:]:
+        #    tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:D+1], z))
         prev = D+1
 
     # iterate over all fields 
