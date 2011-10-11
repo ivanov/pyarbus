@@ -10,6 +10,7 @@ import nitime
 from nitime import Events, Epochs
 from StringIO import StringIO
 import gzip
+import tempfile
 
 __all__ = [ 'Eyelink', 
 'reprocess_eyelink_msgs', 'findall_loadtxt',
@@ -479,10 +480,13 @@ Examples
 """
     if filename.endswith('gz'):
         f = gzip.open(filename)
-        raw = f.read()
+        # mmap needs a fileno, so we'll read into a tempfile
+        tempf = tempfile.TemporaryFile()
+        tempf.write(f.read())
+        raw = mmap.mmap(tempf.fileno(), 0, access=mmap.ACCESS_READ)
     else:
         f = file(filename)
-        raw = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) 
+        raw = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
     # let's try mmap for efficiency
     #raw = f.read()
 
