@@ -54,13 +54,13 @@ gaze_cols = {
         (False,False,False) : (0,1,2,3), # gaze columns for monocular data
         # Monocular, with velocity
         #        <time> <xp> <yp> <ps> <xv> <yv>
-        (False,True ,False) : (0,1,2,3,4,5), 
+        (False,True ,False) : (0,1,2,3,4,5),
         # Monocular, with resolution
         #     <time> <xp> <yp> <ps> <xr> <yr>
-        (False,False,True ) : (0,1,2,3,4,5), 
+        (False,False,True ) : (0,1,2,3,4,5),
         # Monocular, with velocity and resolution
         #     <time> <xp> <yp> <ps> <xv> <yv> <xr> <yr>
-        (False,True ,True ) : (0,1,2,3,4,5,6,7), 
+        (False,True ,True ) : (0,1,2,3,4,5,6,7),
         # Binocular
         #     <time> <xpl> <ypl> <psl> <xpr> <ypr> <psr>
         (True ,False,False) : (0,1,2,3,4,5,6), # gaze columns for binocuclar data
@@ -69,10 +69,10 @@ gaze_cols = {
         (True ,True ,False) : (0,1,2,3,4,5,6,7,8,9,10),
         # Binocular, with and resolution
         #     <time> <xpl> <ypl> <psl> <xpr> <ypr> <psr> <xr> <yr>
-        (True ,False,True ) : (0,1,2,3,4,5,6,7,8), 
+        (True ,False,True ) : (0,1,2,3,4,5,6,7,8),
         # Binocular, with velocity and resolution
         #      <time> <xpl> <ypl> <psl> <xpr> <ypr> <psr> <xvl> <yvl> <xvr> <yvr> <xr> <yr>
-        (True ,False,True ) : (0,1,2,3,4,5,6,7,8,9,10,11,12), 
+        (True ,False,True ) : (0,1,2,3,4,5,6,7,8,9,10,11,12),
         }
 
 def get_gaze_col_dtype(binocular, velocity, res):
@@ -124,15 +124,15 @@ class Saccades(nitime.Events):
     def __getitem__(self,k):
         return Saccades(self.time[k], start=self.start[k],stop=self.stop[k],
                 amplitude=self.amplitude[k], vpeak=self.vpeak[k],
-                xi=self.xi[k], 
-                xf=self.xf[k], 
-                yi=self.yi[k], 
+                xi=self.xi[k],
+                xf=self.xf[k],
+                yi=self.yi[k],
                 yf=self.yf[k]
                 )
 
 class Eyelink(object):
     """
-class for Eyelink data 
+class for Eyelink data
 
 Has x,y,pupA time series, as well as saccade and discard epochs, frames
 events and msgs strings extracted from an Eyelink .asc file. All members are
@@ -147,18 +147,18 @@ e.['saccades']
         The y-axis trace
     e["pupA"] : TimeSeries
         Pupil area trace
-            
+
     e["saccades"] : Epochs or None
-        Epochs which contain saccades 
+        Epochs which contain saccades
     e["blinks_l"] : Epochs or None
     e["blinks_r"] : Epochs or None
         Blinks from the left and right eyes
     e["discard"] : Epochs or None
         Epochs to be discarded because they contain a blink (see Notes below)
 
-            
+
     e["frames"] : Events or None
-        Onset of frames, e.g. e["frames"][29] returns when 29th frame was shown 
+        Onset of frames, e.g. e["frames"][29] returns when 29th frame was shown
     e["msgs"] : tuple(str) or None
         Lines in Eyelink file which start with MSG (such as "Stimulus paused"),
         other than frame onsets (which are parsed out)
@@ -171,7 +171,7 @@ e.['saccades']
 Notes
 -----
 
-According to Eyelink manual 1.3 4.5.3.5 Blinks (p. 98) 
+According to Eyelink manual 1.3 4.5.3.5 Blinks (p. 98)
 
     "Blinks are always preceded and followed by partial occlusion of the and
     pupil, causing artificial changes in pupil position.  These are sensed by
@@ -180,7 +180,7 @@ According to Eyelink manual 1.3 4.5.3.5 Blinks (p. 98)
     - start saccade (SSACC)
     - start blink   (SBLINK)
     - end blink     (EBLINK)
-    - end saccade   (ESACC) 
+    - end saccade   (ESACC)
     ... All data between SSACC and ESSAC events should be discarded. "
 
 In the Eyelink 1.4 manual, p 108:
@@ -206,7 +206,7 @@ follow a blink
             raise ValueError("fittype '" + str(self._fittype) +
                     "' has no surface associated with it")
         return self._surfaces[self._fittype]
-    
+
     def set_surface(self,s):
         """Set the parameter surface specified by surftype"""
         self._surfaces[self._fittype] = s
@@ -215,7 +215,7 @@ follow a blink
     surface = property(get_surface,set_surface,_surfdoc)
 
     _fits=None
-    
+
     def get_fits(self):
         """Return the fit parameters"""
         if self._fits is None:
@@ -227,7 +227,7 @@ follow a blink
                 print "did not find cached calculations"
                 self._fits = {}
         return self._fits
-    
+
     def set_fits(self,f):
         """set the fit parameters"""
         self._fits = f
@@ -360,7 +360,7 @@ follow a blink
     def experiment(self):
         """ the name of the python file that ran at the beginning of this
         recording.
-        
+
         Just grabs it from the .msg[0] """
         return self.msgs[0].split('/')[-1]
 
@@ -381,7 +381,7 @@ follow a blink
         return self._fnamelong
 
 def reprocess_eyelink_msgs(pattern, msgs, cols=(0,), dtype=None):
-    """ 
+    """
     Takes the messages, creates a temporary buffer out of them, and reuses
     the machinery of findall_loadtxt to search for the pattern
 
@@ -395,7 +395,7 @@ def reprocess_eyelink_msgs(pattern, msgs, cols=(0,), dtype=None):
     --------
         Grab just the timestamp of messages which start with pupArt:
         >>> reprocess_eyelink_msgs('pupArt', el.msgs)
-     
+
     XXX: there's probably a better way of doing this than writing to a
     temporary buffer and reprocessing it, but this allows me to reuse machinery
     that's already there. and LTS. -pi
@@ -409,12 +409,12 @@ def findall_loadtxt(pattern, raw, cols, dtype=None):
     str = "\n".join(matches)
     tmp = StringIO(str)
     if len(matches) == 0:
-        return np.array([]) 
+        return np.array([])
 
     #ret = np.empty(len(matches),dtype=dtype)
     #for i,match in enumerate(matches):
     #    ret[i] = np.loadtxt(StringIO(match),dtype=dtype,usecols=cols)
-        
+
     if cols == "all":
         #f = tempfile.TemporaryFile()
         #f.write(str)
@@ -432,7 +432,7 @@ def findall_loadtxt(pattern, raw, cols, dtype=None):
             ret[dtype.names[i]] = dtype[i].type(c)
         ret
     else:
-        ret = np.loadtxt(tmp,dtype=dtype,usecols=cols) 
+        ret = np.loadtxt(tmp,dtype=dtype,usecols=cols)
     #tmp.close()
     return ret
 
@@ -449,13 +449,13 @@ information)
     filename : str
         name of .asc file to be read
 
-:Returns: 
+:Returns:
     eye : Eyelink
         container with 'x','y','pupA' TimeSeries, 'saccade' and 'discard'
         Epochs, and 'frames' Events.
 
 :SeeAlso:
-  - Eyelink : class of the return object of this function 
+  - Eyelink : class of the return object of this function
 
 Notes
 -----
@@ -471,7 +471,7 @@ Examples
 (TimeSeries([ 398.8,  398.8,  398.8, ...,  350.2,  355.5,  361.1]),
  TimeSeries([ 301.1,  301. ,  300.9, ...,  547.5,  512.4,  478.9]),
  Epochs([(18984432.0, 74.0, 0.0, 18984506.0),
-       (18984800.0, 6.0, 0.0, 18984806.0)], 
+       (18984800.0, 6.0, 0.0, 18984806.0)],
       dtype=[('tstart', '<f8'), ('duration', '<f8'), ('t0_offset', '<f8'), ('tstop', '<f8')]))
 >>>  print g['raw'][:200]
 ** CONVERTED FROM BALDI009.EDF using edfapi 3.0 Linux Jun 18 2008 on Wed Oct 22 16:47:03 2008
@@ -513,7 +513,7 @@ Examples
     # from Eyelink manual 1.4 p 106:
     # Each type of event has its own line format. These use some of the data
     #items listed below. Each line begins with a keyword (always in uppercase) and
-    #items are separated by one or more tabs or spaces.  
+    #items are separated by one or more tabs or spaces.
     #DATA NOTATIONS
     #<eye>                 which eye caused event ("L" or "R")
     #<time>                timestamp in milliseconds
@@ -529,7 +529,7 @@ Examples
     #<xr>, <yr>            X and Y resolution (position units/degree)
 
 
-    
+
     gc_gaze_dtype = np.dtype([('time', 'uint64'),
                            ('x','float64'),
                            ('y','float64')])
@@ -589,7 +589,7 @@ Examples
     #      <time> <xpl> <ypl> <psl> <xpr> <ypr> <psr> <xvl> <yvl> <xvr> <yvr> <xr> <yr>
     # -----------------------
     # XXX: for now, we'll only support monocular and binocular formats, will include others later
-    
+
     #replace missing fields. with NaN XXX: should this NaN be user defined, instead of hardcoded?
     raw = re.sub('   .\t','  nan\t',raw)
     raw = re.sub('\.\.\.','',raw)
@@ -598,9 +598,9 @@ Examples
     # the bulk of the time for this function is spent here - XXX: any speedup
     # in this code / approach will be very welcome. For example - setting cols
     # to None here speeds up the calls to np.loadtxt by about 50%
-    gaze = findall_loadtxt("^\d+.*",raw,'all',gdtype) 
+    gaze = findall_loadtxt("^\d+.*",raw,'all',gdtype)
     raw = re.sub("\n\d+.*","",raw) # get rid of lines which we've already
-    
+
     # frame data - MSG <time> <frame>
     # get first field for time, get second field as value dict
     frames = findall_loadtxt("(?<=MSG.)\d+\ \d+",raw,(0,1), dtype=np.uint64).astype(float)
@@ -608,7 +608,7 @@ Examples
             dtype=np.uint64).astype(float)
 
     # get MSGs which are not like frames or GCDISP
-    msgsstr = re.findall("^MSG.\d+\ [^\dG].*", raw, re.M) 
+    msgsstr = re.findall("^MSG.\d+\ [^\dG].*", raw, re.M)
 
     #NOTE: If the eyetracking data contains calibrations, then saccade
     #and blinks times will be off. Time series assumes all data sampled
@@ -625,7 +625,7 @@ Examples
     missing_tstamp= np.array([])
 
     #Use the eyelink-reported samplerate
-    samplingrate = findall_loadtxt("RATE[\t ]*\d+.\d*",raw,(1,)) 
+    samplingrate = findall_loadtxt("RATE[\t ]*\d+.\d*",raw,(1,))
     dt = 1000/samplingrate[0]
 
     #XXX: throw error if diff.gaze(['time']) is ever either 0 or negative (samples repeated or out of order)
@@ -636,8 +636,8 @@ Examples
         ## functionality again - it was needed for neuropy's events and
         ## timeseries implementation, but no longer necessary with nitime
         #missing_tstamp= np.concatenate((missing_tstamp,gaze['time'][D:D+2]))
-        #t = np.concatenate((t,gaze['time'][prev:D+1], 
-        #                    np.arange(gaze['time'][D], 
+        #t = np.concatenate((t,gaze['time'][prev:D+1],
+        #                    np.arange(gaze['time'][D],
         #                              gaze['time'][D+1],
         #                              dt,dtype='uint64')))
         ## missing values stored as NaNs
@@ -647,7 +647,7 @@ Examples
         #    tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:D+1], z))
         prev = D+1
 
-    # iterate over all fields 
+    # iterate over all fields
     tmp['time'] = t
     for fn in gaze.dtype.names:
         tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:]))
@@ -661,14 +661,14 @@ Examples
     # See Notes in the Eyelink class docstring
     # Basically, all we need to do is find those ESACC events which are
     # preceded by EBLINK events, and discard the entire saccade
-    
+
     #TODO: a better way of doing this is to separate the streams (as we do
     #later anyway) and call a function to parse the two streams seperately...
     #...but life's too short for now
 
     # convert endblinks to fixed length (so we can use lookback)
-    blinks_r = findall_loadtxt("(?<=EBLINK.)R\ \d+\t\d+",raw,(1,2)) 
-    blinks_l = findall_loadtxt("(?<=EBLINK.)L\ \d+\t\d+",raw,(1,2)) 
+    blinks_r = findall_loadtxt("(?<=EBLINK.)R\ \d+\t\d+",raw,(1,2))
+    blinks_l = findall_loadtxt("(?<=EBLINK.)L\ \d+\t\d+",raw,(1,2))
     blinks_r.shape = -1,2
     blinks_l.shape = -1,2
 
@@ -692,8 +692,8 @@ Examples
     raw_r= re.sub("EBLINK.*","EBLINK",raw_r)
     #1/0
     # lookback and return endsaccades which are preceded by an endblink
-    discard_r = findall_loadtxt("(?<=EBLINK\nESACC...).*\d+\t\d+",raw_r,(0,1)) 
-    discard_l = findall_loadtxt("(?<=EBLINK\nESACC...).*\d+\t\d+",raw_l,(0,1)) 
+    discard_r = findall_loadtxt("(?<=EBLINK\nESACC...).*\d+\t\d+",raw_r,(0,1))
+    discard_l = findall_loadtxt("(?<=EBLINK\nESACC...).*\d+\t\d+",raw_l,(0,1))
     # XXX: separate timestamp gaps with blinks (and maybe have a method that
     # reports the OR of all the crap
     discard_r = np.append(missing_tstamp,discard_r)
@@ -720,8 +720,8 @@ Examples
     fix_l= findall_loadtxt("(?<=EFIX...).*",raw_l,(0,1,3,4,5)).astype(float)
     fix_r.shape = -1,5
     fix_l.shape = -1,5
-    
-    raw = re.sub("\n[ES]SACC.*","",raw)  # get rid of lines which we've already 
+
+    raw = re.sub("\n[ES]SACC.*","",raw)  # get rid of lines which we've already
     raw = re.sub("\n[ES]BLINK.*","",raw) # extracted
 
     el = Eyelink(filename, binocular, have_right, have_left, velocity, res,
@@ -818,7 +818,7 @@ Examples
                 #epochs=Epochs(fix_r[:,0]/1000.0,fix_r[:,1]/1000.0)
                 )
         el.r.fixepochs=Epochs(fix_r[:,0]/1000.0,fix_r[:,1]/1000.0)
-    
+
     if frames.size:
         el.frames = Events(frames[:,0]/1000.0,v=frames[:,1])
 
@@ -881,7 +881,7 @@ class EyelinkReplayer(object):
         """
         if self.bitflip:
             # get roughly 1000Hz replay
-            time.sleep(.001) 
+            time.sleep(.001)
         else:
             # increment the internal index
             self.i += 1
@@ -899,11 +899,11 @@ class EyelinkReplayer(object):
 
     def getFloatData(self):
         return self
-    
+
     def isRightSample(self):
         return self.el.have_right
-        
-    
+
+
     def isLeftSample(self):
         return self.el.have_left
 
@@ -922,7 +922,7 @@ class EyelinkReplayer(object):
 
     def getTime(self):
         # convert back to milliseconds, which is how pylink represents time
-        return int(self.t[self.i]*1000) 
+        return int(self.t[self.i]*1000)
 
     def sendMessage(self, txt):
         print "Replayer got Eyelink MSG: '%s'"%txt
