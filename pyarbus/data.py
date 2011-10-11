@@ -7,6 +7,7 @@ import re
 import numpy as np
 import mmap
 import nitime
+from nitime import Events, Epochs
 from StringIO import StringIO
 import gzip
 
@@ -738,7 +739,7 @@ Examples
         if have_right:
             mi = np.ma.masked_invalid
             d = dict([(n,mi(gaze[n])) for n in gaze.dtype.names[1:]])
-            el.r = nitime.Events(time,copy=False,**d)
+            el.r = nitime.Events(time,**d)
         else:
             for name in gaze.dtype.names[1:]:
                 el.l[name] = Events(time,v=np.ma.masked_invalid(gaze[name]),
