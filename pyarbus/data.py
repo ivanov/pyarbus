@@ -5,15 +5,17 @@ from __future__ import with_statement
 
 import re
 import numpy as np
-import mmap
 import nitime
 from nitime import Events, Epochs
 from StringIO import StringIO
 import gzip
-import tempfile
 
-__all__ = [ 'Eyelink', 
-'reprocess_eyelink_msgs', 'findall_loadtxt',
+import logging
+logging.basicConfig()
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+
+__all__ = [ 'Eyelink', 'reprocess_eyelink_msgs', 'findall_loadtxt',
 'read_eyelink', 'EyelinkReplayer']
 
 # gaze_dtype dictionary which is meant to be indexed by the `binocular`
@@ -482,6 +484,8 @@ Examples
         f = gzip.open(filename)
         # looks like mmaping all of this makes no difference
         # mmap needs a fileno, so we'll read into a tempfile
+        #import mmap
+        #import tempfile
         #tempf = tempfile.TemporaryFile()
         #tempf.write(f.read())
         ## ensure that we mmap the whole file, not a partially written one
@@ -490,6 +494,7 @@ Examples
         #raw = f.read()
     else:
         f = file(filename)
+        #import mmap
         #raw = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
         #raw = f.read()
     # let's try mmap for efficiency
@@ -625,8 +630,8 @@ Examples
 
     #XXX: throw error if diff.gaze(['time']) is ever either 0 or negative (samples repeated or out of order)
     for D in np.arange(len(gaze['time']))[np.diff(gaze['time']) != dt]:
-        print "WARNING: discontinuity in eyetracker time series",
-        print " at sample ",D,", time ",str(gaze['time'][D:D+2])
+        log.warn("Discontinuity in eyetracker time series")
+        log.warn("   at sample %d, time %s",D,str(gaze['time'][D:D+2]))
         ## XXX: implement a "fill-discontinuous" flag to have this
         ## functionality again - it was needed for neuropy's events and
         ## timeseries implementation, but no longer necessary with nitime
@@ -722,7 +727,7 @@ Examples
     el = Eyelink(filename, binocular, have_right, have_left, velocity, res,
             samplingrate=samplingrate[0])
 
-
+    # XXX - remove this senseless division - nitime does time properly
     time = gaze['time'] / 1000.0
     if binocular:
         # names[0] is 'time', everything else is x,y,pupA,
@@ -775,65 +780,67 @@ Examples
 
     #XXX: wrap this up into a loop for neatness / brevity
     if blinks_r.size:
-        eye.r.blinks = Epochs(blinks_r[:,0]/1000.0,blinks_r[:,1]/1000.0)
+        el.r.blinks = Epochs(blinks_r[:,0]/1000.0,blinks_r[:,1]/1000.0)
 
     if blinks_l.size:
-        eye.l.blinks = Epochs(blinks_l[:,0]/1000.0,blinks_l[:,1]/1000.0)
+        el.l.blinks = Epochs(blinks_l[:,0]/1000.0,blinks_l[:,1]/1000.0)
 
     if discard_l.size:
-        eye.l.discard = Epochs(discard_l[:,0]/1000.0,discard_l[:,1]/1000.0)
+        el.l.discard = Epochs(discard_l[:,0]/1000.0,discard_l[:,1]/1000.0)
     if discard_r.size:
-        eye.r.discard = Epochs(discard_r[:,0]/1000.0,discard_r[:,1]/1000.0)
+        el.r.discard = Epochs(discard_r[:,0]/1000.0,discard_r[:,1]/1000.0)
 
     if saccades_l.size:
-        eye.l.saccades = Saccades(saccades_l[:,0]/1000.0, start=saccades_l[:,0]/1000.0,stop=saccades_l[:,1]/1000.0,
+        el.l.saccades = Saccades(saccades_l[:,0]/1000.0, start=saccades_l[:,0]/1000.0,stop=saccades_l[:,1]/1000.0,
                 amplitude=saccades_l[:,2], vpeak=saccades_l[:,3],
                 #epochs=Epochs(saccades_l[:,0]/1000.0,saccades_l[:,1]/1000.0),
                 xi=saccades_l[:,3], yi=saccades_l[:,4],
                 xf=saccades_l[:,5], yf=saccades_l[:,6],
                 )
-        eye.l.sacepochs = Epochs(saccades_l[:,0]/1000.0,saccades_l[:,1]/1000.0)
+        el.l.sacepochs = Epochs(saccades_l[:,0]/1000.0,saccades_l[:,1]/1000.0)
     if saccades_r.size:
-        eye.r.saccades = Saccades(saccades_r[:,0]/1000.0, start=saccades_r[:,0]/1000.0,stop=saccades_r[:,1]/1000.0,
+        el.r.saccades = Saccades(saccades_r[:,0]/1000.0, start=saccades_r[:,0]/1000.0,stop=saccades_r[:,1]/1000.0,
                 amplitude=saccades_r[:,2], vpeak=saccades_r[:,3],
                 #epochs=Epochs(saccades_r[:,0]/1000.0,saccades_r[:,1]/1000.0),
                 xi=saccades_r[:,3], yi=saccades_r[:,4],
                 xf=saccades_r[:,5], yf=saccades_r[:,6],
                 )
-        eye.r.sacepochs = Epochs(saccades_r[:,0]/1000.0,saccades_r[:,1]/1000.0)
+        el.r.sacepochs = Epochs(saccades_r[:,0]/1000.0,saccades_r[:,1]/1000.0)
     if fix_l.size:
-        eye.l.fixations = Events(fix_l[:,0]/1000.0, start=fix_l[:,0]/1000.0,stop=fix_l[:,1]/1000.0,
+        el.l.fixations = Events(fix_l[:,0]/1000.0, start=fix_l[:,0]/1000.0,stop=fix_l[:,1]/1000.0,
                 xavg=fix_l[:,2], yavg=fix_l[:,3], pavg=fix_l[:,4]
                 #epochs=Epochs(fix_l[:,0]/1000.0,fix_l[:,1]/1000.0))
                 )
-        eye.l.fixepochs=Epochs(fix_l[:,0]/1000.0,fix_l[:,1]/1000.0)
+        el.l.fixepochs=Epochs(fix_l[:,0]/1000.0,fix_l[:,1]/1000.0)
     if fix_r.size:
-        eye.r.fixations = Events(fix_r[:,0]/1000.0, start=fix_r[:,0]/1000.0,stop=fix_r[:,1]/1000.0,
+        el.r.fixations = Events(fix_r[:,0]/1000.0, start=fix_r[:,0]/1000.0,stop=fix_r[:,1]/1000.0,
                 xavg=fix_r[:,2], yavg=fix_r[:,3], pavg=fix_r[:,4],
                 #epochs=Epochs(fix_r[:,0]/1000.0,fix_r[:,1]/1000.0)
                 )
-        eye.r.fixepochs=Epochs(fix_r[:,0]/1000.0,fix_r[:,1]/1000.0)
+        el.r.fixepochs=Epochs(fix_r[:,0]/1000.0,fix_r[:,1]/1000.0)
     
     if frames.size:
-        eye.frames = Events(frames[:,0]/1000.0,v=frames[:,1])
+        el.frames = Events(frames[:,0]/1000.0,v=frames[:,1])
 
     if link_fix.size:
-        eye.link_fixations = Events(link_fix/1000.0)
+        el.link_fixations = Events(link_fix/1000.0)
 
-    eye.msgs = msgsstr
-    eye.raw = raw # contains all the lines which have not been processed
+    el.msgs = msgsstr
+    el.raw = raw # contains all the lines which have not been processed
     if gcdisp.size:
         gcdisp =  gcdisp.view(np.recarray)
-        eye.gcdisp = Events(gcdisp.time/1000.0, x=gcdisp.x, y=gcdisp.y)
+        el.gcdisp = Events(gcdisp.time/1000.0, x=gcdisp.x, y=gcdisp.y)
 
     # XXX: kind of wish I could do some interval math on epochs (union,
     # intersection, a la pyinterval)
 
-    #1/0
-    eye.do_discard()
+    try:
+        el.do_discard()
+    except AttributeError:
+        log.warn("Discarding failed")
 
     f.close()
-    return eye
+    return el
 
 class EyelinkReplayer(object):
     """ Class which implements the pylink API but plays back eyelink .asc files
