@@ -464,7 +464,7 @@ Assumes edf2asc ran with '-nflags -miss -9999.9'
 Examples
 --------
 
->>> eye = read_eyelink('data/BALDI009.asc')
+>>> eye = read_eyelink('data/pi.asc')
 >>> eye['x'], eye['y'], eye['saccades'][:2]
 (TimeSeries([ 398.8,  398.8,  398.8, ...,  350.2,  355.5,  361.1]),
  TimeSeries([ 301.1,  301. ,  300.9, ...,  547.5,  512.4,  478.9]),
@@ -480,17 +480,24 @@ Examples
 """
     if filename.endswith('gz'):
         f = gzip.open(filename)
+        # looks like mmaping all of this makes no difference
         # mmap needs a fileno, so we'll read into a tempfile
-        tempf = tempfile.TemporaryFile()
-        tempf.write(f.read())
-        # ensure that we mmap the whole file, not a partially written one
-        tempf.flush()
-        raw = mmap.mmap(tempf.fileno(), 0, access=mmap.ACCESS_READ)
+        #tempf = tempfile.TemporaryFile()
+        #tempf.write(f.read())
+        ## ensure that we mmap the whole file, not a partially written one
+        #tempf.flush()
+        #raw = mmap.mmap(tempf.fileno(), 0, access=mmap.ACCESS_READ)
+        #raw = f.read()
     else:
         f = file(filename)
-        raw = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        #raw = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+        #raw = f.read()
     # let's try mmap for efficiency
-    #raw = f.read()
+    # XXX: seems like mmaping was not necessary here - at least i can't see a
+    # difference right now - need to test with reading lots of large files in
+    # a row - so that they would flush one another out of cache to see if
+    # mmaping makes a difference
+    raw = f.read()
 
     # filter these redundant lines early, their E prefix counterparts contain all of the data
     # XXX: not true in HINAK075.ASC as parsed by before 2006 edf2asc - SSACS followed by blinks do not
