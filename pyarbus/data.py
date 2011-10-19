@@ -363,15 +363,23 @@ follow a blink
         if eye.discard is None:
             log.info("nothing to discard")
             return
+        
+        #XXX: should masks be shared (from the beginning) -that way we'd have
+        # something like MaskedEvents, which all data attributes look onto
+        # toward
+        #eye.x.v.mask = eye.y.v.mask = mask
+        #eye.xres.v.mask = eye.yres.v.mask = mask
+        #eye.pupA.v.mask = mask
 
         for ep in eye.discard:
-            sl=eye.x.epoch2slice(ep)
-            start,stop = sl.start,sl.stop
-            mask = eye.x.v.mask
-            mask[start-pad:stop+pad] = True
-            eye.x.v.mask = eye.y.v.mask = mask
-            eye.xres.v.mask = eye.yres.v.mask = mask
-            eye.pupA.v.mask = mask
+            # XXX: the current nitime implementation will cause the next line
+            # to return events again, instead of another Eye
+            discarded_data=eye[ep]
+            # this relies on the above slicing operation to return a view on
+            # the same data as 'eye' and to not make a copy
+            for k in eye.data:
+                eye.data[k].mask[:] = True
+            #mask[start-pad:stop+pad] = True
 
     @property
     def eye_used(self):
@@ -660,7 +668,7 @@ Examples
     dt = 1000/samplingrate[0]
 
     #XXX: throw error if diff.gaze(['time']) is ever either 0 or negative (samples repeated or out of order)
-    for D in np.arange(len(gaze['time']))[np.diff(gaze['time']) != dt]:
+    for D in np.where(np.diff(gaze['time']) != dt)[0]:
         log.warn("Discontinuity in eyetracker time series")
         log.warn("   at sample %d, time %s",D,str(gaze['time'][D:D+2]))
         ## XXX: implement a "fill-discontinuous" flag to have this
@@ -676,7 +684,7 @@ Examples
         ## .names[1:] skips over the 'time' field
         #for fn in gaze.dtype.names[1:]:
         #    tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:D+1], z))
-        prev = D+1
+        #prev = D+1
 
     # iterate over all fields
     #tmp['time'] = t
@@ -758,8 +766,8 @@ Examples
     el = Eyelink(filename, binocular, have_right, have_left, velocity, res,
             samplingrate=samplingrate[0])
 
-    # XXX - remove this senseless division - nitime does time properly
-    time = gaze['time'] / 1000.0
+    # XXX - remove this senseless /1000.0 division - nitime does time properly
+    time = gaze['time'] # done, just need to fix binocular
     if binocular:
         # names[0] is 'time', everything else is x,y,pupA,
         for name in gaze.dtype.names[1:4]:
@@ -791,62 +799,66 @@ Examples
         mi = np.ma.masked_invalid
         d = dict([(n,mi(gaze[n])) for n in gaze.dtype.names[1:]])
         if have_right:
-            el.r = Eye(time,**d)
+            el.r = Eye(time, time_unit='ms',**d)
         else:
-            el.l = Eye(time,**d)
+            el.l = Eye(time, time_unit='ms',**d)
 
     #XXX: wrap this up into a loop for neatness / brevity
     if blinks_r.size:
-        el.r.blinks = Epochs(blinks_r[:,0]/1000.0,blinks_r[:,1]/1000.0)
+        el.r.blinks = Epochs(blinks_r[:,0],blinks_r[:,1],time_unit='ms')
 
     if blinks_l.size:
-        el.l.blinks = Epochs(blinks_l[:,0]/1000.0,blinks_l[:,1]/1000.0)
+        el.l.blinks = Epochs(blinks_l[:,0],blinks_l[:,1], time_unit='ms')
 
     if discard_l.size:
-        el.l.discard = Epochs(discard_l[:,0]/1000.0,discard_l[:,1]/1000.0)
+        el.l.discard = Epochs(discard_l[:,0],discard_l[:,1], time_unit='ms')
     if discard_r.size:
-        el.r.discard = Epochs(discard_r[:,0]/1000.0,discard_r[:,1]/1000.0)
+        el.r.discard = Epochs(discard_r[:,0],discard_r[:,1], time_unit='ms')
 
     if saccades_l.size:
-        el.l.saccades = Saccades(saccades_l[:,0]/1000.0, start=saccades_l[:,0]/1000.0,stop=saccades_l[:,1]/1000.0,
+        el.l.saccades = Saccades(saccades_l[:,0],
+                start=saccades_l[:,0],stop=saccades_l[:,1], time_unit='ms',
                 amplitude=saccades_l[:,2], vpeak=saccades_l[:,3],
-                #epochs=Epochs(saccades_l[:,0]/1000.0,saccades_l[:,1]/1000.0),
+                #epochs=Epochs(saccades_l[:,0],saccades_l[:,1]), time_unit='ms',
                 xi=saccades_l[:,3], yi=saccades_l[:,4],
                 xf=saccades_l[:,5], yf=saccades_l[:,6],
                 )
-        el.l.sacepochs = Epochs(saccades_l[:,0]/1000.0,saccades_l[:,1]/1000.0)
+        el.l.sacepochs = Epochs(saccades_l[:,0],saccades_l[:,1], time_unit='ms')
     if saccades_r.size:
-        el.r.saccades = Saccades(saccades_r[:,0]/1000.0, start=saccades_r[:,0]/1000.0,stop=saccades_r[:,1]/1000.0,
+        el.r.saccades = Saccades(saccades_r[:,0],
+                start=saccades_r[:,0],stop=saccades_r[:,1], time_unit='ms',
                 amplitude=saccades_r[:,2], vpeak=saccades_r[:,3],
-                #epochs=Epochs(saccades_r[:,0]/1000.0,saccades_r[:,1]/1000.0),
+                #epochs=Epochs(saccades_r[:,0],saccades_r[:,1]), time_unit='ms',
                 xi=saccades_r[:,3], yi=saccades_r[:,4],
                 xf=saccades_r[:,5], yf=saccades_r[:,6],
                 )
-        el.r.sacepochs = Epochs(saccades_r[:,0]/1000.0,saccades_r[:,1]/1000.0)
+        el.r.sacepochs = Epochs(saccades_r[:,0],saccades_r[:,1], time_unit='ms')
     if fix_l.size:
-        el.l.fixations = Events(fix_l[:,0]/1000.0, start=fix_l[:,0]/1000.0,stop=fix_l[:,1]/1000.0,
+        el.l.fixations = Events(fix_l[:,0],
+                start=fix_l[:,0],stop=fix_l[:,1], time_unit='ms',
                 xavg=fix_l[:,2], yavg=fix_l[:,3], pavg=fix_l[:,4]
-                #epochs=Epochs(fix_l[:,0]/1000.0,fix_l[:,1]/1000.0))
+                #epochs=Epochs(fix_l[:,0],fix_l[:,1]), time_unit='ms')
                 )
-        el.l.fixepochs=Epochs(fix_l[:,0]/1000.0,fix_l[:,1]/1000.0)
+        el.l.fixepochs=Epochs(fix_l[:,0],fix_l[:,1], time_unit='ms')
     if fix_r.size:
-        el.r.fixations = Events(fix_r[:,0]/1000.0, start=fix_r[:,0]/1000.0,stop=fix_r[:,1]/1000.0,
+        el.r.fixations = Events(fix_r[:,0],
+                start=fix_r[:,0],stop=fix_r[:,1], time_unit='ms',
                 xavg=fix_r[:,2], yavg=fix_r[:,3], pavg=fix_r[:,4],
-                #epochs=Epochs(fix_r[:,0]/1000.0,fix_r[:,1]/1000.0)
+                #epochs=Epochs(fix_r[:,0],fix_r[:,1], time_unit='ms')
                 )
-        el.r.fixepochs=Epochs(fix_r[:,0]/1000.0,fix_r[:,1]/1000.0)
+        el.r.fixepochs=Epochs(fix_r[:,0],fix_r[:,1], time_unit='ms')
 
     if frames.size:
-        el.frames = Events(frames[:,0]/1000.0,v=frames[:,1])
+        el.frames = Events(frames[:,0],v=frames[:,1], time_unit='ms')
 
     if link_fix.size:
-        el.link_fixations = Events(link_fix/1000.0)
+        el.link_fixations = Events(link_fix, time_unit='ms')
 
     el.msgs = msgsstr
     el.raw = raw # contains all the lines which have not been processed
     if gcdisp.size:
         gcdisp =  gcdisp.view(np.recarray)
-        el.gcdisp = Events(gcdisp.time/1000.0, x=gcdisp.x, y=gcdisp.y)
+        el.gcdisp = Events(gcdisp.time, x=gcdisp.x, y=gcdisp.y, time_unit='ms')
 
     # XXX: kind of wish I could do some interval math on epochs (union,
     # intersection, a la pyinterval)
