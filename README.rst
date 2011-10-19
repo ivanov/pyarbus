@@ -1,3 +1,4 @@
+=======
 pyarbus
 =======
 
@@ -12,6 +13,25 @@ This is a for-public-consumption rewrite of previously unreleased internal
 code, and it may still contain specifics unique to the way my experiments
 (which would be considered a bug and should be removed). Many docstrings have
 not yet been updated to reflect the changes introduced by the rewrite.
+
+Right now, 2011-10-18, pyarbus depends on `nitime`_ from Git.
+
+.. _nitime: http://github.com/nipy/nitime
+
+To start using pyarbus right away, just run::
+    
+    python setup.py develop
+
+This will make it so that you don't have to reinstall every time you pull in
+new changes from the git repository. If you just wante to install
+
+Requirements
+------------
+
+- python 2.6
+- numpy
+- matplotlib
+- nitime (from Git, as of 2011-10-18)
 
 If you have any questions, my email addres is ``pi berkeley edu`` with the
 appropriate characters replacing the spaces.

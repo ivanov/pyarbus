@@ -15,8 +15,11 @@ logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
-__all__ = [ 'Eyelink', 'reprocess_eyelink_msgs', 'findall_loadtxt',
-'read_eyelink', 'EyelinkReplayer']
+__all__ = [ 'Eye','Eyelink', 'reprocess_eyelink_msgs', 'findall_loadtxt',
+'read_eyelink', 'read_eyelink_cached', 'EyelinkReplayer']
+
+# a dictionary to cache eyelink data in memory, used by read_eyelink_cached
+_cache = {}
 
 # gaze_dtype dictionary which is meant to be indexed by the `binocular`
 # boolean value
@@ -855,6 +858,20 @@ Examples
 
     f.close()
     return el
+
+def read_eyelink_cached(fname,d=_cache):
+    """
+    Read the asc file in `fname` into the dictionary `d` using
+    read_eyelink(fname) and cache the results there. On subsequent calls, no
+    reading is performed, and the cached results are returned. 
+    """
+    #if d is None: return read_eyelink(fname)
+
+    if d.has_key(fname) == False:
+        d[fname] = read_eyelink(fname)
+    else:
+        print "Using cached version of ", fname
+    return d[fname]
 
 class EyelinkReplayer(object):
     """ Class which implements the pylink API but plays back eyelink .asc files

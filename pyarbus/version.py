@@ -16,7 +16,7 @@ if _version_extra:
 
 __version__ = '.'.join(map(str, _ver))
 
-CLASSIFIERS = ["Development Status :: 3 - Alpha",
+CLASSIFIERS = ["Development Status :: 2 - Pre-Alpha",
                "Environment :: Console",
                "Intended Audience :: Science/Research",
                "License :: OSI Approved :: BSD License",
@@ -31,17 +31,17 @@ description = "pyarbus: eyetracking data analysis"
 # it only in one place and sync it correctly.
 long_description = """
 ===================================================
- pyarbus: eyetracking data analysis 
+ pyarbus: eyetracking data analysis
 ===================================================
 
 pyarbus is a library of tools and algorithms for the analysis of time-series data
-from eyetracking experiments. 
+from eyetracking experiments.
 
 Website and mailing list
 ========================
 
 Current information can always be found at the pyarbus `website`_. Questions and
-comments can be directed to `Paul Ivanov`_. 
+comments can be directed to `Paul Ivanov`_.
 
 .. _website: http://pyarbus.pirsquared.org/
 .. _Paul Ivanov: http://pirsquared.org
