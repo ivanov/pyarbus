@@ -101,13 +101,6 @@ class Saccades(nitime.Events):
     @property
     def yf(self):
         return self.data['yf']
-    #@desc.setattr_on_read
-    #def amplitude(self):
-    #    dx = (self.data['xi'] - self.data['xf'])
-    #    dx *= dx
-    #    dx /= (self.data['xresi'] - self.data['xresf'])
-    #    dx *= 2
-    #    dy = (self.data['yi'] - self.data['yf'])**2
     @property
     def amplitude(self):
         return self.data['amplitude']
@@ -141,7 +134,14 @@ class Eye(nitime.Events):
     >>> eye = Eye(time, **dict(x=x,y=y))
 
     you can then access the data member directly using ``eye.x`` instead of the
-    more awkward ``eye.data['x']``
+    more awkward ``eye.data['x']``.
+
+    Typically, an Eye will have the following attributes:
+    x : horizontal component
+    y : vertical component
+    pupA : pupil area 
+    xres : horizontal resolution (used for converting to degrees)
+    yres : vertical resolution (used for converting to degrees)
 
     Additionally, an instance of an Eye class has the following attributes
 
@@ -322,15 +322,6 @@ follow a blink
         # have that init do some of this work for us.
         self.r = None
         self.l = None
-        #self.r.saccades = None
-        #self.l.saccades = None
-        #self.r.fixepochs = None
-        #self.l.fixepochs = None
-        #self.r.sacepochs = None
-        #self.l.sacepochs = None
-        #self.r.discard = []
-        #self.l.discard = []
-        #self["discard"] = self["saccades"] = None
         self.msgs = None
         self.frames = None
         self.raw = None
@@ -350,9 +341,9 @@ follow a blink
         raw = self.raw.split('\n')
 
         if self.have_left:
-            rep += "\nLeft " +  __eye_repr__(self.l)
+            rep += "\nLeft " +  repr(self.l)
         if self.have_right:
-            rep += "\nRight "+ __eye_repr__(self.r)
+            rep += "\nRight "+ repr(self.r)
         rep += "\n"+raw[0]
         rep += "\n"+raw[1]
         rep += "\n"+raw[5]
@@ -495,7 +486,9 @@ information)
 Notes
 -----
 
-Assumes edf2asc ran with '-nflags -miss -9999.9'
+Though the functionality here *should* work with all formats produced by
+``edf2asc`` -- it is most extensively tested with with .edf files proccessed
+with the following edf2asc parameter set:  ``-y -z -vel -res``
 
 
 Examples
@@ -683,13 +676,13 @@ Examples
         prev = D+1
 
     # iterate over all fields
-    tmp['time'] = t
-    for fn in gaze.dtype.names:
-        tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:]))
+    #tmp['time'] = t
+    #for fn in gaze.dtype.names:
+    #    tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:]))
 
-    gaze = np.zeros(len(tmp['time']),dtype=gdtype)
-    for fn in gaze.dtype.names:
-        gaze[fn] = tmp[fn]
+    #gaze = np.zeros(len(tmp['time']),dtype=gdtype)
+    #for fn in gaze.dtype.names:
+    #    gaze[fn] = tmp[fn]
 
     raw= re.sub("\nMSG.*","", raw) # extracted
 
@@ -798,17 +791,6 @@ Examples
             el.r = Eye(time,**d)
         else:
             el.l = Eye(time,**d)
-
-
-    # eye["x"] = TimeSeries(gaze['x'],
-    #                       t0=gaze['time'][0]/1000.0,
-    #                       samplingrate=500)#gaze['time'][1]-gaze['time'][0])
-    # eye["y"] = TimeSeries(gaze['y'],
-    #                       t0=gaze['time'][0]/1000.0,
-    #                       samplingrate=500)#gaze['time'][1]-gaze['time'][0])
-    # eye["pupA"] = TimeSeries(gaze['pupA'],
-    #                          t0=gaze['time'][0]/1000.0,
-    #                          samplingrate=500)#gaze['time'][1]-gaze['time'][0])
 
     #XXX: wrap this up into a loop for neatness / brevity
     if blinks_r.size:
