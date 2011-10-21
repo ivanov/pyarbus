@@ -25,6 +25,6 @@ from data import *
 
 import utils
 
-import viz
+#import viz
 
 from testlib import test

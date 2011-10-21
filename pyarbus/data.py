@@ -766,34 +766,27 @@ Examples
     el = Eyelink(filename, binocular, have_right, have_left, velocity, res,
             samplingrate=samplingrate[0])
 
-    # XXX - remove this senseless /1000.0 division - nitime does time properly
-    time = gaze['time'] # done, just need to fix binocular
+    time = gaze['time'] 
     if binocular:
+        mi = np.ma.masked_invalid
         # names[0] is 'time', everything else is x,y,pupA,
-        for name in gaze.dtype.names[1:4]:
-            # XXX: grr! using a masked array doesn't work with neuropy's
-            # implementation of Events
-            el.l[name] = Events(time,
-                    v=np.ma.masked_invalid(gaze[name], copy=False))
-        # so far we've called right eye data x2,y2,pupA2 - rename these to x,y,pupA
-        for name,field in zip(('x','y','pupA'),gaze.dtype.names[4:7]):
-            el.r[name] = Events(time,
-                    v=np.ma.masked_invalid(gaze[field]), copy=False) # typecast as Events,
+        names = gaze.dtype.names
+        left_eye = names[1:4]
+        right_eye = names[4:7]
         if velocity:
-            for name in gaze.dtype.names[7:9]:
-                el.l[name] = Events(time,
-                        v=np.ma.masked_invalid(gaze[name], copy=False))
-            # so far we've called right eye data x2v,y2v - rename these to xv,yv
-            for name,field in zip(('xv','yv'),gaze.dtype.names[9:11]):
-                el.r[name] = Events(time,
-                        v=np.ma.masked_invalid(gaze[field], copy=False))
+            left_eye.extend(names[7:9])
+            right_eye.extend(names[9:11])
         if res:
             # res fields are always the last two, if present
-            for name in gaze.dtype.names[-2],gaze.dtype.names[-1]:
-                el.l[name] = Events(time,v=np.ma.masked_invalid(gaze[name],
-                        copy=False)) # typecast as Events,
-                el.r[name] = Events(time,v=np.ma.masked_invalid(gaze[name],
-                    copy=False)) # typecast as Events,
+            left_eye.extend(names[-2:])
+            right_eye.extend(names[-2:])
+
+        dl = dict([(n,mi(gaze[n])) for n in left_eye])
+        el.l = Eye(time, time_unit='ms',**dl)
+
+        # so far we've called right eye data x2,y2,pupA2 - rename these to x,y,pupA
+        dr = dict([(n.replace('2',''),mi(gaze[f])) for n in right_eye])
+        el.r = Eye(time, time_unit='ms',**dr)
 
     else:
         mi = np.ma.masked_invalid
