@@ -1,4 +1,12 @@
 from os import path
+
+# If you are running nosetests right now, you might want to use 'agg' as a
+# backend:
+import sys
+if "nose" in sys.modules:
+        import matplotlib
+        matplotlib.use('agg')
+
 import matplotlib.pyplot as plt
 import pyarbus
 import pyarbus.viz as viz
