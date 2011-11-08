@@ -1,5 +1,5 @@
 """
-Library of functions related to eye movement analysis
+Library of functions related to eye movement data input/output
 """
 from __future__ import with_statement
 
@@ -120,11 +120,7 @@ class Saccades(nitime.Events):
     def __getitem__(self,k):
         return Saccades(self.time[k], start=self.start[k],stop=self.stop[k],
                 amplitude=self.amplitude[k], vpeak=self.vpeak[k],
-                xi=self.xi[k],
-                xf=self.xf[k],
-                yi=self.yi[k],
-                yf=self.yf[k]
-                )
+                xi=self.xi[k], xf=self.xf[k], yi=self.yi[k], yf=self.yf[k])
 
 class Eye(nitime.Events):
     """Class used for monocular eyetracking data
@@ -142,7 +138,7 @@ class Eye(nitime.Events):
     Typically, an Eye will have the following attributes:
     x : horizontal component
     y : vertical component
-    pupA : pupil area 
+    pupA : pupil area
     xres : horizontal resolution (used for converting to degrees)
     yres : vertical resolution (used for converting to degrees)
 
@@ -868,14 +864,17 @@ def read_eyelink_cached(fname,d=_cache):
     """
     Read the asc file in `fname` into the dictionary `d` using
     read_eyelink(fname) and cache the results there. On subsequent calls, no
-    reading is performed, and the cached results are returned. 
+    reading is performed, and the cached results are returned.
+
+    If passed only `fname`, a module-level dictionary is used for the
+    in-memory caching. That dictionary can be accessed as pyarbus.data._cache
     """
     #if d is None: return read_eyelink(fname)
 
     if d.has_key(fname) == False:
         d[fname] = read_eyelink(fname)
     else:
-        print "Using cached version of ", fname
+        log.info("Using cached version of %s", fname)
     return d[fname]
 
 class EyelinkReplayer(object):
