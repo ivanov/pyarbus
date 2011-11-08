@@ -36,7 +36,10 @@ def test_cached_read():
     # the speedup in general depends on the file size, disk speed, and how fast
     # we read it, etc, but for the file on this test, I see speedups of ~ 500x
     # on my machine, so I'm just putting a conservative speedup assertion of at
-    # least 100x test in here for good measure
-    assert(speedup > 100)
+    # least 20x test in here for good measure. NOTE: this test might actually
+    # fail if we write a much faster file reader, such that caching it is not
+    # longer as much of a performance boost as it was before, but that' a nice
+    # bug to have.
+    assert(speedup > 20)
     # remove it from the cache
     del(pyarbus.data._cache[test_file])
