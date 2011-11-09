@@ -10,16 +10,14 @@ if "nose" in sys.modules:
 import matplotlib.pyplot as plt
 import pyarbus
 import pyarbus.viz as viz
-from .test_data import data_path
+from pyarbus.tests import gz_test_file as test_file
 
 def test_saccade_scatter():
-    test_file = path.join(data_path,'pi.asc.gz')
-    el = pyarbus.read_eyelink(test_file)
+    el = pyarbus.read_eyelink_cached(test_file)
     viz.plot_saccade_scatter(el.r.saccades)
     plt.show()
 
 def test_saccade_hist():
-    test_file = path.join(data_path,'pi.asc.gz')
-    el = pyarbus.read_eyelink(test_file)
+    el = pyarbus.read_eyelink_cached(test_file)
     viz.plot_saccade_hist(el.r.saccades)
     plt.show()

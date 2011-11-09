@@ -3,31 +3,35 @@ import pyarbus
 
 pyarbus_path = path.dirname(pyarbus.__file__)
 data_path = path.join(pyarbus_path,'data')
+# these can be used in test
+gz_test_file = path.join(data_path,'pi.asc.gz')
+short_test_file = path.join(data_path,'pi_short.asc')
 def test_read_eyelink():
     "Read a short eyelink file with discontinuous time points"
-    test_file = path.join(data_path,'pi_short.asc')
-    return pyarbus.read_eyelink(test_file)
+    return pyarbus.read_eyelink(short_test_file)
 
 def test_read_eyelink_large():
     "Read a gunzipped .asc file (~10MB)"
-    test_file = path.join(data_path,'pi.asc.gz')
-    return pyarbus.read_eyelink(test_file)
+    el = pyarbus.read_eyelink(gz_test_file)
+    # cache this for viz tests which use this file, to save time
+    pyarbus.data._cache[gz_test_file] = el
+    return el
 
 
 def test_cached_read():
     "Read a file (and cache it)"
-    test_file = path.join(data_path,'pi_short.asc')
     import time
+    #del(pyarbus.data._cache[short_test_file])
     tic = time.time()
-    el = pyarbus.read_eyelink_cached(test_file)
+    el = pyarbus.read_eyelink_cached(short_test_file)
     toc = time.time()
     total_time = toc - tic
     # Here, we add a dummy attribute to the object - it should still be there
-    # after we re-read test_file from cache, since we're not modifying the
-    # object that's stored in the cache.
+    # after we re-read short_test_file from cache, since we're not modifying
+    # the object that's stored in the cache.
     el.__extra_dummy = 10
     tic = time.time()
-    el = pyarbus.read_eyelink_cached(test_file)
+    el = pyarbus.read_eyelink_cached(short_test_file)
     toc = time.time()
     cached_time = toc-tic
     speedup = total_time / cached_time
@@ -44,4 +48,4 @@ def test_cached_read():
     # and capturing that output has overhead for nose.
     assert(speedup > 20.)
     # remove it from the cache
-    del(pyarbus.data._cache[test_file])
+    del(pyarbus.data._cache[short_test_file])
