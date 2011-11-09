@@ -227,71 +227,6 @@ XXX: We do not currently eliminate short (<120ms) fixations that precede or
 follow a blink
 
     """
-    _fittype = None
-
-    def get_surface(self):
-        """Return the parameter surface specified by surftype"""
-        if self._fittype not in self._surfaces:
-            raise ValueError("fittype '" + str(self._fittype) +
-                    "' has no surface associated with it")
-        return self._surfaces[self._fittype]
-
-    def set_surface(self,s):
-        """Set the parameter surface specified by surftype"""
-        self._surfaces[self._fittype] = s
-
-    _surfdoc = "parameter surface currently in use (specified by surftype)"
-    surface = property(get_surface,set_surface,_surfdoc)
-
-    _fits=None
-
-    def get_fits(self):
-        """Return the fit parameters"""
-        if self._fits is None:
-            try:
-                f = np.load(self.fname+'fits.npz')
-                print "using cached fits found in "+self.fname+'fits.npz'
-                self._fits = f['fits'][()]
-            except IOError:
-                print "did not find cached calculations"
-                self._fits = {}
-        return self._fits
-
-    def set_fits(self,f):
-        """set the fit parameters"""
-        self._fits = f
-
-    _fitdoc = """fit parameters keys by (xpos,ypos), which are loaded from
-        disk when possible"""
-    fits = property(get_fits,set_fits,_fitdoc)
-
-    def save_fits(self):
-        """save the fits to disk, so they get automatically loaded in the
-        future"""
-        np.savez(self.fname+'fits',fits=self._fits)
-
-    @property
-    def xsurf(self):
-        """Return the X parameter surface specified by surftype"""
-        return self._surfaces[self._fittype]['xsurf']
-
-    @property
-    def ysurf(self):
-        """Return the Y parameter surface specified by surftype"""
-        return self._surfaces[self._fittype]['ysurf']
-
-    def get_fittype(self):
-        """Get the current type of fit used for the parameter surface"""
-        return self._fittype
-
-    def set_fittype(self, ft):
-        """Set the current type of fit to use for parameter surface"""
-        self._fittype = ft
-
-    _fittypedoc = """ What fit to use for the parameter surface (e.g. 'linear',
-    'interpolated_quadratic', 'combined_cubic')
-    """
-    fittype = property(get_fittype, set_fittype, doc=_fittypedoc)
 
     msgs = None
     frames = None
@@ -309,7 +244,6 @@ follow a blink
             self.__dict__.update(from_eyelink.__dict__)
             return
         #Container.__init__(self)
-        self._surfaces = {}
         self._samplingrate = samplingrate
         self.binocular = have_left and have_right
         self.have_right = have_right
@@ -469,7 +403,7 @@ def findall_loadtxt(pattern, raw, cols, dtype=None):
     #tmp.close()
     return ret
 
-def read_eyelink(filename):
+def read_eyelink(filename,Eyelink=Eyelink):
     """
 Read in Eyelink .asc file,
 
@@ -482,8 +416,11 @@ information)
     filename : str
         name of .asc file to be read
 
+    Eyelink : Eyelink (optional)
+        Eyelink class as defined in pyarbus.data, or a subclass thereof
+
 :Returns:
-    eye : Eyelink
+    eye : Eyelink (as passed)
         container with 'x','y','pupA' TimeSeries, 'saccade' and 'discard'
         Epochs, and 'frames' Events.
 
