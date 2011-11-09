@@ -163,9 +163,9 @@ class Eyelink(object):
     """
 class for Eyelink data
 
-Has x,y,pupA time series, as well as saccade and discard epochs, frames
-events and msgs strings extracted from an Eyelink .asc file. All members are
-also attributes (you can use e.x and e.saccades as a shorthand for e['x'] and
+Has x,y,pupA time series, as well as saccade and discard epochs,  msgs strings
+extracted from an Eyelink .asc file. All members are also attributes (you can
+use e.x and e.saccades as a shorthand for e['x'] and
 e.['saccades']
 
 :Members:
@@ -186,11 +186,8 @@ e.['saccades']
         Epochs to be discarded because they contain a blink (see Notes below)
 
 
-    e["frames"] : Events or None
-        Onset of frames, e.g. e["frames"][29] returns when 29th frame was shown
     e["msgs"] : tuple(str) or None
         Lines in Eyelink file which start with MSG (such as "Stimulus paused"),
-        other than frame onsets (which are parsed out)
     e["raw"] : str
         Contains the text which was not processed into one of the above
 
@@ -199,7 +196,6 @@ e.['saccades']
 
 Notes
 -----
-
 According to Eyelink manual 1.3 4.5.3.5 Blinks (p. 98)
 
     "Blinks are always preceded and followed by partial occlusion of the and
@@ -229,16 +225,15 @@ follow a blink
     """
 
     msgs = None
-    frames = None
     raw = None
 
-    def list_fittypes(self):
-        "Return the fit types which have been computed for this experiment"
-        return self._surfaces.keys()
+    # subclasses can extend this list, and the object will repr properly
+    _extra_attrs = ['msgs']
+
 
     def __init__(self,fname='dummyfile', binocular=False, have_right=True,
             have_left=False,have_vel=False,have_res=False,samplingrate=None,
-            from_eyelink=None):
+            from_eyelink=None, msgs=None):
 
         if from_eyelink:
             self.__dict__.update(from_eyelink.__dict__)
@@ -255,8 +250,7 @@ follow a blink
         # have that init do some of this work for us.
         self.r = None
         self.l = None
-        self.msgs = None
-        self.frames = None
+        self.msgs = msgs
         self.raw = None
         self._fnamelong = fname
         self._fname = fname.split('/')[-1].split('.')[0]
@@ -266,7 +260,7 @@ follow a blink
         if self.binocular: rep += " binocular"
         elif self.have_right: rep += " monocular (right eye)"
         else: rep += " monocular (left eye)"
-        for x in ['frames','msgs']:
+        for x in self._extra_attrs:
             if self.__getattribute__(x) is not None:
                 rep +="\n %d %s ["%(len(self.__getattribute__(x)),x)
                 rep += self.__getattribute__(x)[0].__repr__()
@@ -408,9 +402,7 @@ def read_eyelink(filename,Eyelink=Eyelink):
 Read in Eyelink .asc file,
 
 Returns obect containing eye position time series, along with pupil area,
-saccades and blink data as parsed by Eyelink, and any messages (such as frame
-information)
-
+saccades and blink data as parsed by Eyelink, and any messages
 
 :Parameters:
     filename : str
@@ -422,7 +414,7 @@ information)
 :Returns:
     eye : Eyelink (as passed)
         container with 'x','y','pupA' TimeSeries, 'saccade' and 'discard'
-        Epochs, and 'frames' Events.
+        Epochs.
 
 :SeeAlso:
   - Eyelink : class of the return object of this function
@@ -575,14 +567,11 @@ Examples
     gaze = findall_loadtxt("^\d+.*",raw,'all',gdtype)
     raw = re.sub("\n\d+.*","",raw) # get rid of lines which we've already
 
-    # frame data - MSG <time> <frame>
-    # get first field for time, get second field as value dict
-    frames = findall_loadtxt("(?<=MSG.)\d+\ \d+",raw,(0,1), dtype=np.uint64).astype(float)
     link_fix = findall_loadtxt("(?<=MSG.)\d+\ Fixation",raw,(0,),
             dtype=np.uint64).astype(float)
 
-    # get MSGs which are not like frames or GCDISP
-    msgsstr = re.findall("^MSG.\d+\ [^\dG].*", raw, re.M)
+    # get MSGs
+    msgsstr = re.findall("^MSG.\d+\ .*", raw, re.M)
 
     #NOTE: If the eyetracking data contains calibrations, then saccade
     #and blinks times will be off. Time series assumes all data sampled
@@ -698,8 +687,9 @@ Examples
     raw = re.sub("\n[ES]SACC.*","",raw)  # get rid of lines which we've already
     raw = re.sub("\n[ES]BLINK.*","",raw) # extracted
 
-    el = Eyelink(filename, binocular, have_right, have_left, velocity, res,
-            samplingrate=samplingrate[0])
+    el = Eyelink(fname=filename, binocular=binocular, have_right=have_right,
+            have_left=have_left, have_vel=velocity, have_res=res,
+            samplingrate=samplingrate[0], msgs=msgsstr)
 
     time = gaze['time'] 
     if binocular:
@@ -776,13 +766,9 @@ Examples
                 )
         el.r.fixepochs=Epochs(fix_r[:,0],fix_r[:,1], time_unit='ms')
 
-    if frames.size:
-        el.frames = Events(frames[:,0],v=frames[:,1], time_unit='ms')
-
     if link_fix.size:
         el.link_fixations = Events(link_fix, time_unit='ms')
 
-    el.msgs = msgsstr
     el.raw = raw # contains all the lines which have not been processed
     if gcdisp.size:
         gcdisp =  gcdisp.view(np.recarray)
