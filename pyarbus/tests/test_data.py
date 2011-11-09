@@ -39,7 +39,9 @@ def test_cached_read():
     # least 20x test in here for good measure. NOTE: this test might actually
     # fail if we write a much faster file reader, such that caching it is not
     # longer as much of a performance boost as it was before, but that' a nice
-    # bug to have.
-    assert(speedup > 20)
+    # bug to have. Also, for test this small, pyarbus.data.log.level
+    # actually makes a big difference in the speedup, since printing to stderr
+    # and capturing that output has overhead for nose.
+    assert(speedup > 20.)
     # remove it from the cache
     del(pyarbus.data._cache[test_file])

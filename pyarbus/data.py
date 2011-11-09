@@ -13,7 +13,7 @@ import gzip
 import logging
 logging.basicConfig()
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.WARNING)
 
 __all__ = [ 'Eye','Eyelink', 'reprocess_eyelink_msgs', 'findall_loadtxt',
 'read_eyelink', 'read_eyelink_cached', 'EyelinkReplayer']
@@ -516,7 +516,7 @@ Examples
     #grab binocularity from the EVENTS GAZE line
     start = re.search("^START.\d+\ [^\d].*", raw, re.M).group().upper()
     samples_line = re.search("^SAMPLES.*", raw, re.M).group()
-    print samples_line
+    log.info(samples_line)
 
     binocular = False
     have_right = start.find('RIGHT') != -1
@@ -528,7 +528,9 @@ Examples
     res = "RES" in samples_line
 
     gcols, gdtype = get_gaze_col_dtype(binocular, velocity, res)
-    print (binocular, velocity, res), get_gaze_col_dtype(binocular, velocity, res)
+    verbose_string = " ".join(
+            [str(x) for x in (binocular, velocity, res, gcols, gdtype)])
+    log.debug( verbose_string )
 
     # EL1.4 p 103: 4.9.2 Sample Line Format (see DATA NOTATIONS for <codes>)
     # -----------------------
@@ -897,4 +899,4 @@ class EyelinkReplayer(object):
         return int(self.t[self.i]*1000)
 
     def sendMessage(self, txt):
-        print "Replayer got Eyelink MSG: '%s'"%txt
+        log.info("Replayer got Eyelink MSG: '%s'",txt)
