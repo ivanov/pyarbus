@@ -785,7 +785,7 @@ Examples
     f.close()
     return el
 
-def read_eyelink_cached(fname,d=_cache):
+def read_eyelink_cached(fname,d=_cache, **kwargs):
     """
     Read the asc file in `fname` into the dictionary `d` using
     read_eyelink(fname) and cache the results there. On subsequent calls, no
@@ -797,7 +797,7 @@ def read_eyelink_cached(fname,d=_cache):
     #if d is None: return read_eyelink(fname)
 
     if d.has_key(fname) == False:
-        d[fname] = read_eyelink(fname)
+        d[fname] = read_eyelink(fname,**kwargs)
     else:
         log.info("Using cached version of %s", fname)
     return d[fname]
