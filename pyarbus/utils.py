@@ -1,6 +1,6 @@
 import numpy as np
 
-def velocity(x,y,use_central=True, xres=None,yres=None):
+def velocity(x,y,use_central=True, sampling_rate=None, xres=None,yres=None):
     """Returns the velocity extracted from x and y samples
 
     Parameters
@@ -31,11 +31,21 @@ def velocity(x,y,use_central=True, xres=None,yres=None):
         vel = full_vel[valid]
         vel[:] = np.diff(y)
         velx = np.diff(x)
+
+
     velx*= velx
     vel *= vel
     vel +=velx
     del(velx)
 
     vel = np.sqrt(vel, vel)
+    # keep velocity in terms of units per sample
+    if use_central:
+        vel /= 2.
+
+    # convert velocity to units per second
+    if sampling_rate:
+        vel *= sampling_rate
+
     vel = np.ma.masked_invalid(full_vel,copy=False)
     return vel
