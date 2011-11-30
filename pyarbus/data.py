@@ -302,7 +302,7 @@ follow a blink
             # this relies on the above slicing operation to return a view on
             # the same data as 'eye' and to not make a copy
             for k in eye.data:
-                eye.data[k].mask[:] = True
+                discarded_data.__getattr__(k).mask[:] = True
             #mask[start-pad:stop+pad] = True
 
     @property
