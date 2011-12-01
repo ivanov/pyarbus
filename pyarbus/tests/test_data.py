@@ -1,4 +1,6 @@
 from os import path
+import numpy as np
+import nitime
 import pyarbus
 
 pyarbus_path = path.dirname(pyarbus.__file__)
@@ -49,3 +51,11 @@ def test_cached_read():
     assert(speedup > 20.)
     # remove it from the cache
     del(pyarbus.data._cache[short_test_file])
+
+def test_missing_data():
+    "Missing data should be filled with nans"
+    el = pyarbus.read_eyelink(short_test_file)
+    time = el.eye_used.time
+    diffs = np.unique(np.diff(time))
+    assert diffs == nitime.TimeArray([1], time_unit='ms')
+    assert nitime.TimeArray(len(time)-1, time_unit='ms') == (time[-1]-time[0])

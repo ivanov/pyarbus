@@ -589,7 +589,7 @@ Examples
 
     #Use the eyelink-reported samplerate
     samplingrate = findall_loadtxt("RATE[\t ]*\d+.\d*",raw,(1,))
-    dt = 1000/samplingrate[0]
+    dt = int(1000/samplingrate[0])
 
     #XXX: throw error if diff.gaze(['time']) is ever either 0 or negative (samples repeated or out of order)
     for D in np.where(np.diff(gaze['time']) != dt)[0]:
@@ -598,26 +598,26 @@ Examples
         ## XXX: implement a "fill-discontinuous" flag to have this
         ## functionality again - it was needed for neuropy's events and
         ## timeseries implementation, but no longer necessary with nitime
-        #missing_tstamp= np.concatenate((missing_tstamp,gaze['time'][D:D+2]))
-        #t = np.concatenate((t,gaze['time'][prev:D+1],
-        #                    np.arange(gaze['time'][D],
-        #                              gaze['time'][D+1],
-        #                              dt,dtype='uint64')))
-        ## missing values stored as NaNs
-        #z = np.ones((gaze['time'][D+1]- gaze['time'][D])/dt) * np.nan
-        ## .names[1:] skips over the 'time' field
-        #for fn in gaze.dtype.names[1:]:
-        #    tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:D+1], z))
-        #prev = D+1
+        missing_tstamp= np.concatenate((missing_tstamp,gaze['time'][D:D+2]))
+        t = np.concatenate((t,gaze['time'][prev:D+1],
+                            np.arange(gaze['time'][D]+dt,
+                                      gaze['time'][D+1],
+                                      dt,dtype='uint64')))
+        # missing values stored as NaNs
+        z = np.ones((gaze['time'][D+1]- gaze['time'][D]-dt)/dt) * np.nan
+        # .names[1:] skips over the 'time' field
+        for fn in gaze.dtype.names[1:]:
+            tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:D+1], z))
+        prev = D+1
 
     # iterate over all fields
-    #tmp['time'] = t
-    #for fn in gaze.dtype.names:
-    #    tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:]))
+    tmp['time'] = t
+    for fn in gaze.dtype.names:
+        tmp[fn] = np.concatenate((tmp[fn],gaze[fn][prev:]))
 
-    #gaze = np.zeros(len(tmp['time']),dtype=gdtype)
-    #for fn in gaze.dtype.names:
-    #    gaze[fn] = tmp[fn]
+    gaze = np.zeros(len(tmp['time']),dtype=gdtype)
+    for fn in gaze.dtype.names:
+        gaze[fn] = tmp[fn]
 
     raw= re.sub("\nMSG.*","", raw) # extracted
 
@@ -659,8 +659,10 @@ Examples
     discard_l = findall_loadtxt("(?<=EBLINK\nESACC...).*\d+\t\d+",raw_l,(0,1))
     # XXX: separate timestamp gaps with blinks (and maybe have a method that
     # reports the OR of all the crap
-    discard_r = np.append(missing_tstamp,discard_r)
-    discard_l = np.append(missing_tstamp,discard_l)
+    if have_right:
+        discard_r = np.append(missing_tstamp,discard_r)
+    if have_left:
+        discard_l = np.append(missing_tstamp,discard_l)
     discard_l.shape = -1,2
     discard_r.shape = -1,2
 
