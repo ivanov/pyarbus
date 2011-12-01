@@ -9,6 +9,7 @@ import nitime
 from nitime import Events, Epochs
 from StringIO import StringIO
 import gzip
+from . import utils
 
 import logging
 logging.basicConfig()
@@ -122,7 +123,7 @@ class Saccades(nitime.Events):
                 amplitude=self.amplitude[k], vpeak=self.vpeak[k],
                 xi=self.xi[k], xf=self.xf[k], yi=self.yi[k], yf=self.yf[k])
 
-class Eye(nitime.Events):
+class Eye(nitime.Events, nitime.descriptors.ResetMixin):
     """Class used for monocular eyetracking data
 
     Under the hood, it uses the nitime.Events class, but presents the event
@@ -152,12 +153,29 @@ class Eye(nitime.Events):
     XXX: That last bit above is hairy - saccades should subclass epochs, and
     then have extra attributes hanging off of them
     """
+    def __init__(self, time, sampling_rate=None, *args, **kwargs):
+        nitime.Events.__init__(self,time,**kwargs)
+        self.sampling_rate = sampling_rate
+
     blinks = None
     discard = None
     saccades = None
     sacepochs = None
+    sampling_rate = None
+    vel_type = 'central'
     def __getattr__(self,k):
         return self.data[k]
+
+    @nitime.descriptors.auto_attr
+    def vel(self):
+        if self.vel_type == 'central':
+            return utils.velocity(self.x,self.y, use_central=True,
+                    sampling_rate=self.sampling_rate, xres=self.xres,
+                    yres=self.yres)
+
+    @nitime.descriptors.auto_attr
+    def eyelink_vel(self):
+        return np.ma.sqrt(self.xv**2 + self.yv**2)
 
 class Eyelink(object):
     """
@@ -709,31 +727,31 @@ Examples
             right_eye.extend(names[-2:])
 
         dl = dict([(n,mi(gaze[n])) for n in left_eye])
-        el.l = Eye(time, time_unit='ms',**dl)
+        el.l = Eye(time, time_unit='ms', sampling_rate=samplingrate[0], **dl)
 
         # so far we've called right eye data x2,y2,pupA2 - rename these to x,y,pupA
         dr = dict([(n.replace('2',''),mi(gaze[f])) for n in right_eye])
-        el.r = Eye(time, time_unit='ms',**dr)
+        el.r = Eye(time, time_unit='ms', sampling_rate=samplingrate[0], **dr)
 
     else:
         mi = np.ma.masked_invalid
         d = dict([(n,mi(gaze[n])) for n in gaze.dtype.names[1:]])
         if have_right:
-            el.r = Eye(time, time_unit='ms',**d)
+            el.r = Eye(time, time_unit='ms', sampling_rate=samplingrate[0], **d)
         else:
-            el.l = Eye(time, time_unit='ms',**d)
+            el.l = Eye(time, time_unit='ms', sampling_rate=samplingrate[0], **d)
 
     #XXX: wrap this up into a loop for neatness / brevity
     if blinks_r.size:
-        el.r.blinks = Epochs(blinks_r[:,0],blinks_r[:,1],time_unit='ms')
+        el.r.blinks = Epochs(blinks_r[:,0], blinks_r[:,1],time_unit='ms')
 
     if blinks_l.size:
-        el.l.blinks = Epochs(blinks_l[:,0],blinks_l[:,1], time_unit='ms')
+        el.l.blinks = Epochs(blinks_l[:,0], blinks_l[:,1], time_unit='ms')
 
     if discard_l.size:
-        el.l.discard = Epochs(discard_l[:,0],discard_l[:,1], time_unit='ms')
+        el.l.discard = Epochs(discard_l[:,0], discard_l[:,1], time_unit='ms')
     if discard_r.size:
-        el.r.discard = Epochs(discard_r[:,0],discard_r[:,1], time_unit='ms')
+        el.r.discard = Epochs(discard_r[:,0], discard_r[:,1], time_unit='ms')
 
     if saccades_l.size:
         el.l.saccades = Saccades(saccades_l[:,0],
