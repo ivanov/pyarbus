@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 import pyarbus
 
 def test_velocity():
@@ -19,9 +20,22 @@ def test_velocity():
     # since signal is linear - the resulting velocity (which is in
     # length units/sample) should be the same
     assert vel_diff.mean() == vel_c.mean()
-    
+
     # check sampling rate works
     vel_10 = pyarbus.velocity(a,a, use_central=False, sampling_rate=10)
+    vel_10
     vel_10c = pyarbus.velocity(a,a, use_central=True, sampling_rate=10)
     assert vel_10.mean() == vel_10c.mean()
     assert vel_10.mean() == vel_diff.mean()*10
+
+    # check that xres and yres are respected
+    xr = yr = np.ones_like(a) * 10
+    vel_10r = pyarbus.velocity(a,a, use_central=False, sampling_rate=10,
+            xres=xr, yres=yr)
+    vel_10cr = pyarbus.velocity(a,a, use_central=True, sampling_rate=10,
+            xres=xr, yres=yr)
+    # since sampling rate and xres/yres are the same, we should get
+    npt.assert_almost_equal(vel_diff, vel_10r)
+    npt.assert_equal(vel_diff.mask, vel_10r.mask)
+    npt.assert_almost_equal(vel_c, vel_10cr)
+    npt.assert_equal(vel_c.mask, vel_10cr.mask)

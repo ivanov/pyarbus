@@ -133,7 +133,7 @@ class Eye(nitime.Events, nitime.descriptors.ResetMixin):
     >>> x,y = np.sin(time),np.cos(time)
     >>> eye = Eye(time, **dict(x=x,y=y))
 
-    you can then access the data member directly using ``eye.x`` instead of the
+    You can then access the data member directly using ``eye.x`` instead of the
     more awkward ``eye.data['x']``.
 
     Typically, an Eye will have the following attributes:
@@ -148,10 +148,18 @@ class Eye(nitime.Events, nitime.descriptors.ResetMixin):
     >>> eye.blinks   # None or Epochs
     >>> eye.discard  # None or Epochs when data should be discarded
     >>> eye.saccades # None or Saccades
+    >>> eye.sampling_rate # None or float, used in vel calculation
     >>> eye.sacepochs   # None or Epochs which correspond to the saccades
 
     XXX: That last bit above is hairy - saccades should subclass epochs, and
-    then have extra attributes hanging off of them
+    then have extra attributes hanging off of them.
+
+    There are also attributes which are computed from the components listed
+    above. You can compare the smoothed velocity provided by Eyelink parser
+    with that calculated from the samples themselves using something like this:
+
+    >>>  plt.hist((eye.eyelink_vel-eye.vel),bins=np.linspace(-40,40,100))
+
     """
     def __init__(self, time, sampling_rate=None, *args, **kwargs):
         nitime.Events.__init__(self,time,**kwargs)
@@ -166,12 +174,47 @@ class Eye(nitime.Events, nitime.descriptors.ResetMixin):
     def __getattr__(self,k):
         return self.data[k]
 
-    @nitime.descriptors.auto_attr
+    @property
     def vel(self):
-        if self.vel_type == 'central':
-            return utils.velocity(self.x,self.y, use_central=True,
-                    sampling_rate=self.sampling_rate, xres=self.xres,
-                    yres=self.yres)
+        """
+        Eye velocity calculated from the samples.
+
+        ``eye.vel`` is calculated and cached the first time it is
+        accessed, using the sample-centered difference by default. The
+        sample-centered difference velocity at point ``t`` is ::
+
+            $ v[t] = \frac{p[t+1] - p[t-1]}{2} $
+
+        Where p is the x,y coordinates of the eye.
+
+        To have ``eye.vel`` be recalculated as an adjacent sample difference,
+        such that ::
+
+            $ y[t] = p[t] - p[t-1] $
+
+        you will have to change ``eye.vel_type`` to something other than
+        'central'. Here's an example:
+
+        >>> eye.reset() # reset the cached eye.vel property, if it's been set
+        >>> eye.vel_type = 'noncentral'
+        >>> eye.vel     # will now be v[1] = p[1] - p[0]
+
+        If ``eye.xres`` and ``eye.yres`` are available, they are included in
+        the velocity calculation, by dividing the change in x and y direction
+        by the average of the xres and yres of those two point, as per the
+        Eyelink manual. See ``pyarbus.utils.velocity`` code for details.
+
+        If ``eye.sampling_rate`` is available then the velocity returned is in
+        units/second, otherwise the quanitity is in units/sample.
+        """
+        return self._vel
+
+    @nitime.descriptors.auto_attr
+    def _vel(self):
+        return utils.velocity(self.x,self.y,
+                use_central= (self.vel_type=='central'),
+                sampling_rate=self.sampling_rate, xres=self.xres,
+                yres=self.yres)
 
     @nitime.descriptors.auto_attr
     def eyelink_vel(self):

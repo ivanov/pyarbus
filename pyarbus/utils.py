@@ -1,15 +1,33 @@
 import numpy as np
 
 def velocity(x,y,use_central=True, sampling_rate=None, xres=None,yres=None):
-    """Returns the velocity extracted from x and y samples
+    """Returns the velocity extracted from ``x`` and ``y`` samples.
 
     Parameters
     ----------
     x : array
+        Horizontal position of the eye.
     y : array
+        Vertical position of the eye.
     use_central : bool
-        whether to use central difference-based computation, or the noisier
-        adjacent sample difference
+        Whether to use central difference-based computation, or the noisier
+        adjacent sample difference. If ``True``, the first and last points in
+        the output array will be masked out, otherwise, only the first point
+        will be masked out.
+    sampling_rate: None or float
+        If provided, returns the velocity as units/second, rather than
+        units/sample
+    xres : array
+        The viewing location-dependent horizontal resolution, used to convert
+        ``x`` from pixels to degrees via: $ \frac{x}{xres} $.
+    yres : array
+        same as above for vertical resolution
+
+    Output
+    ------
+    v : masked array
+        This array is the same length as ``x`` and ``y``, regardless of the
+        value of use_central.
     """
     full_vel = np.empty_like(x)
     if use_central:
@@ -31,6 +49,11 @@ def velocity(x,y,use_central=True, sampling_rate=None, xres=None,yres=None):
         vel = full_vel[valid]
         vel[:] = np.diff(y)
         velx = np.diff(x)
+        if xres is not None:
+            velx /= (xres[1:] + xres[:-1])
+            velx *= 2.
+            vel /= (yres[1:] + yres[:-1])
+            vel *= 2.
 
 
     velx*= velx
