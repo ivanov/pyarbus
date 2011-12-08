@@ -216,9 +216,60 @@ class Eye(nitime.Events, nitime.descriptors.ResetMixin):
                 sampling_rate=self.sampling_rate, xres=self.xres,
                 yres=self.yres)
 
+    @property
+    def accel(self):
+        """
+        Eye acceleration calculated from the data samples.
+
+        See ``eye.vel`` for details on how this is calculated, cached, and
+        what the options are for changing it. ``eye.vel_type`` determines
+        which method is used in calculating both the acceleration and the
+        velocity.
+
+        Here's an illustrative plot on the affects of the central-difference
+        method on the adjacent sample noise.
+
+        >>> eye.reset()
+        >>> eye.vel_type='central'
+        >>> plt.plot(eye.accel,'b')
+        >>> eye.reset()
+        >>> eye.vel_type=''
+        >>> plt.plot(eye.accel,'r')
+        """
+        return self._accel
+
     @nitime.descriptors.auto_attr
+    def _accel(self):
+        return utils.acceleration(self.vel,
+                use_central=(self.vel_type=='central'))
+
+    @property
     def eyelink_vel(self):
+        """Velocity as provided by the Eyelink EDF2ASC parser
+
+        See ``eye.vel`` for details on how this is cached.
+        """
+        return self._eyelink_vel
+
+    @nitime.descriptors.auto_attr
+    def _eyelink_vel(self):
         return np.ma.sqrt(self.xv**2 + self.yv**2)
+
+    @property
+    def eyelink_accel(self):
+        """
+        Acceleration as calcutated from the velocity provided by the
+        Eyelink EDF2ASC parser.
+
+        See ``eye.vel`` for details on how this is calculated, cached, and what the
+        options are for changing it. ``eye.vel_type`` determines which method
+        is used in calculating the acceleration
+        """
+        return self._eyelink_accel
+
+    @nitime.descriptors.auto_attr
+    def _eyelink_accel(self):
+        return utils.acceleration(self.eyelink_vel)
 
 class Eyelink(object):
     """

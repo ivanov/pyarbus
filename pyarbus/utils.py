@@ -28,6 +28,10 @@ def velocity(x,y,use_central=True, sampling_rate=None, xres=None,yres=None):
     v : masked array
         This array is the same length as ``x`` and ``y``, regardless of the
         value of use_central.
+    
+    See Also
+    --------
+    acceleration
     """
     full_vel = np.empty_like(x)
     if use_central:
@@ -72,3 +76,37 @@ def velocity(x,y,use_central=True, sampling_rate=None, xres=None,yres=None):
 
     vel = np.ma.masked_invalid(full_vel,copy=False)
     return vel
+
+def acceleration(v,use_central=True):
+    """
+    Calculate the acceleration from a velocity ``v``.
+
+    Parameters
+    ----------
+    v : array
+        Velocity of the eye.
+    use_central : bool
+        Whether to use central difference-based computation, or the noisier
+        adjacent sample difference. If ``True``, the first and last points in
+        the output array will be masked out, otherwise, only the first point
+        will be masked out.
+
+    Output
+    ------
+    v : masked array
+        This array is the same length as ``v`` regardless of the value of
+        ``use_central``.
+
+    See Also
+    --------
+    velocity
+    """
+    full_accel = np.empty_like(v)
+    if use_central:
+        full_accel[0] = full_accel[-1] = np.nan
+        full_accel[1:-1] = v[2:]-v[:-2]
+        full_accel /= 2.
+    else:
+        full_accel[0] = np.nan
+        full_accel[1:] = np.diff(v)
+    return np.ma.masked_invalid(full_accel,copy=False)

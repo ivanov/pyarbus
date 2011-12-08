@@ -39,3 +39,16 @@ def test_velocity():
     npt.assert_equal(vel_diff.mask, vel_10r.mask)
     npt.assert_almost_equal(vel_c, vel_10cr)
     npt.assert_equal(vel_c.mask, vel_10cr.mask)
+def test_accel():
+    "Acceleration calculations from velocity"
+    v = np.arange(10.)
+    ac = pyarbus.acceleration(v, use_central=True)
+    npt.assert_equal(ac, np.ones_like(v))
+    mask = np.zeros(10, dtype=np.bool)
+    mask[0] = mask[-1] = True
+    npt.assert_equal(ac.mask, mask)
+
+    anc = pyarbus.acceleration(v, use_central=False)
+    mask[-1] = False
+    npt.assert_equal(anc,np.ones_like(v))
+    npt.assert_equal(anc.mask, mask)

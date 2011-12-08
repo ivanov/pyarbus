@@ -25,7 +25,7 @@ from data import *
 
 import utils
 
-from utils import velocity
+from utils import velocity, acceleration
 
 #import viz
 
