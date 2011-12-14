@@ -76,7 +76,7 @@ gaze_cols = {
         (True ,False,True ) : (0,1,2,3,4,5,6,7,8),
         # Binocular, with velocity and resolution
         #      <time> <xpl> <ypl> <psl> <xpr> <ypr> <psr> <xvl> <yvl> <xvr> <yvr> <xr> <yr>
-        (True ,False,True ) : (0,1,2,3,4,5,6,7,8,9,10,11,12),
+        (True ,True,True ) : (0,1,2,3,4,5,6,7,8,9,10,11,12),
         }
 
 def get_gaze_col_dtype(binocular, velocity, res):
@@ -423,7 +423,7 @@ follow a blink
         error if binocular"""
 
         if self.binocular:
-            raise Exception, "Container is binocular, both eyes are available"
+            raise AttributeError, "Container is binocular, both eyes are available"
         if self.have_right:
             return self.r
         else:
@@ -498,7 +498,7 @@ def findall_loadtxt(pattern, raw, cols, dtype=None):
         # lelt's just read it all as strings, and then deal with the
         # consequences later
         retfloat = np.fromstring(str, dtype=float, sep=' ')
-        retfloat.shape=-1,8
+        retfloat.shape=len(matches),-1
         ret = np.empty(len(matches),dtype=dtype)
 
         for i,c in enumerate(retfloat.T):
@@ -809,7 +809,7 @@ Examples
     if binocular:
         mi = np.ma.masked_invalid
         # names[0] is 'time', everything else is x,y,pupA,
-        names = gaze.dtype.names
+        names = list(gaze.dtype.names)
         left_eye = names[1:4]
         right_eye = names[4:7]
         if velocity:
@@ -824,7 +824,7 @@ Examples
         el.l = Eye(time, time_unit='ms', sampling_rate=samplingrate[0], **dl)
 
         # so far we've called right eye data x2,y2,pupA2 - rename these to x,y,pupA
-        dr = dict([(n.replace('2',''),mi(gaze[f])) for n in right_eye])
+        dr = dict([(n.replace('2',''),mi(gaze[n])) for n in right_eye])
         el.r = Eye(time, time_unit='ms', sampling_rate=samplingrate[0], **dr)
 
     else:
