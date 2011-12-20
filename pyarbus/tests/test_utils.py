@@ -26,7 +26,7 @@ def test_velocity():
     vel_10
     vel_10c = pyarbus.velocity(a,a, use_central=True, sampling_rate=10)
     assert vel_10.mean() == vel_10c.mean()
-    assert vel_10.mean() == vel_diff.mean()*10
+    npt.assert_almost_equal(vel_10.mean(), vel_diff.mean()*10)
 
     # check that xres and yres are respected
     xr = yr = np.ones_like(a) * 10
