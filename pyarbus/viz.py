@@ -66,3 +66,15 @@ def plot_saccade_stats(sac,bins=36, fig=None):
     plt.subplot(224)
     plt.hist(sac.vpeak,bins=100)
     plt.xlabel("saccade peak velocities")
+
+
+def plot_xyp(eye, axes=None, subtract_t0=True):
+    if axes is None:
+        fig,axes = plt.subplots(3,1,sharex=True)
+    t = eye.time
+    if subtract_t0:
+        t -= eye.time[0]
+    axes[0].plot(eye.time, eye.pupA)
+    axes[1].plot(eye.time, eye.x)
+    axes[2].plot(eye.time, eye.y)
+

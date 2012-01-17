@@ -33,7 +33,7 @@ Requirements
 - matplotlib
 - nitime (from Git, as of 2011-10-18)
 
-If you have any questions, my email addres is ``pi berkeley edu`` with the
+If you have any questions, my email address is ``pi berkeley edu`` with the
 appropriate characters replacing the spaces.
 
 best,
