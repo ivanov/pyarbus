@@ -71,7 +71,7 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective holders.
 
-Copyright (c) 2009-2011, Paul Ivanov
+Copyright (c) 2009-2012, Paul Ivanov
 All rights reserved.
 """
 
