@@ -19,14 +19,14 @@ def test_velocity():
     assert vel_diff.mask.sum() == 1
     # since signal is linear - the resulting velocity (which is in
     # length units/sample) should be the same
-    assert vel_diff.mean() == vel_c.mean()
+    npt.assert_almost_equal(vel_diff.mean(), vel_c.mean())
 
     # check sampling rate works
     vel_10 = pyarbus.velocity(a,a, use_central=False, sampling_rate=10)
     vel_10
     vel_10c = pyarbus.velocity(a,a, use_central=True, sampling_rate=10)
-    assert vel_10.mean() == vel_10c.mean()
-    assert vel_10.mean() == vel_diff.mean()*10
+    npt.assert_almost_equal(vel_10.mean(), vel_10c.mean())
+    npt.assert_almost_equal(vel_10.mean(), vel_diff.mean()*10)
 
     # check that xres and yres are respected
     xr = yr = np.ones_like(a) * 10
@@ -39,6 +39,7 @@ def test_velocity():
     npt.assert_equal(vel_diff.mask, vel_10r.mask)
     npt.assert_almost_equal(vel_c, vel_10cr)
     npt.assert_equal(vel_c.mask, vel_10cr.mask)
+
 def test_accel():
     "Acceleration calculations from velocity"
     v = np.arange(10.)
