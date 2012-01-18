@@ -34,7 +34,9 @@ def test_cached_read():
     el.__extra_dummy = 10
     tic = time.time()
     el = pyarbus.read_eyelink_cached(short_test_file)
-    toc = time.time()
+    # windows time.time is only ms resolution:
+    # http://mail.python.org/pipermail/python-list/2007-January/1121263.html
+    toc = time.time() + 0.001
     cached_time = toc-tic
     speedup = total_time / cached_time
     el.__extra_dummy # should *not* raise an attribute error
