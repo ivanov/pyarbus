@@ -541,8 +541,7 @@ Notes
 
 Though the functionality here *should* work with all formats produced by
 ``edf2asc`` -- it is most extensively tested with with .edf files proccessed
-with the following edf2asc parameter set:  ``-y -z -vel -res``
-
+with the following edf2asc parameter set:  ``-y -z -vel -res -nflags``
 
 Examples
 --------
