@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
+import nitime
 
 def plot_saccade_scatter(sac, ax=None):
     """
@@ -66,3 +68,48 @@ def plot_saccade_stats(sac,bins=36, fig=None):
     plt.subplot(224)
     plt.hist(sac.vpeak,bins=100)
     plt.xlabel("saccade peak velocities")
+
+
+def plot_xyp(eye, axes=None, subtract_t0=True):
+    """
+    Plots, on three separate subplots, the pupil area, x, and y position
+    reported by the eyetracker as a function of time.
+    """
+    if axes is None:
+        fig,axes = plt.subplots(3,1,sharex=True)
+    t = eye.time
+    if subtract_t0:
+        t -= eye.time[0]
+    axes[0].plot(eye.time, eye.pupA)
+    axes[1].plot(eye.time, eye.x)
+    axes[2].plot(eye.time, eye.y)
+    eye.time.time_unit = 's'
+    make_time_axis(axes[-1].xaxis, time_unit=eye.time.time_unit)
+    axes[2].set_xlabel("Time (%s)" % eye.time.time_unit)
+
+def make_time_axis(axis=None,time_unit='s'):
+    """
+    Change formatter to interpret axis as a nitime TimeArray object
+
+    Parameters:
+    -----------
+    axis : None, matplotlib.axis.XAxis, or matplotlib.axis.YAxis
+        Axis whose ticks will be reinterpreted as being nitime-based time. If
+        None, ``plt.gca().xaxis`` will be used
+    time_unit : str
+        A valid ``nitime`` time format, for possibilities, see
+        ``nitime.timeseries.time_unit_conversion.keys()``
+
+    """
+    if axis is None:
+        axis = plt.gca().xaxis
+    class TimeFormatter(matplotlib.ticker.FuncFormatter):
+        def __init__(self,time_unit):
+            self.time_unit = time_unit
+            conv = nitime.time_unit_conversion
+            self.func = lambda x,y: (1.0*x) / conv[self.time_unit]
+        def format_data_short(self,value):
+            'return a short string version'
+            return "%-12g"%self.format_data(value)
+    f = TimeFormatter(time_unit)
+    axis.set_major_formatter(f)

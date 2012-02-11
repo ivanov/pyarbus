@@ -7,3 +7,11 @@ it'd be nice to use joblib to store computations on disk
 
 what about computing saccades using different algorithms, and caching those
 results, so as to be able to quickly switch between them?
+
+API Docs building, as well as a proper manual
+
+Examples of customized extensions via subclassing of Eye and Eyelink classes
+(like I did for JoV paper)
+
+release the current git version of nitime, so that users have an easier time
+meeting the requirements

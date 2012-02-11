@@ -23,22 +23,29 @@ To start using pyarbus right away, just run::
     python setup.py develop
 
 This will make it so that you don't have to reinstall every time you pull in
-new changes from the git repository. If you just wante to install
+new changes from the git repository. If you just wanted to install the
+standard way, run::
+
+    python setup.py install
 
 Requirements
 ------------
 
 - python 2.6
+
 - numpy
+
 - matplotlib
+
 - nitime (from Git, as of 2011-10-18)
 
-If you have any questions, my email addres is ``pi berkeley edu`` with the
+If you have any questions, my email address is ``pi berkeley edu`` with the
 appropriate characters replacing the spaces.
 
 best,
-    Paul Ivanov
+    `Paul Ivanov`_ 
 
+.. _Paul Ivanov: http://pirsquared.org
 
 CHANGELOG
 ---------

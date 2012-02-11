@@ -497,7 +497,12 @@ def findall_loadtxt(pattern, raw, cols, dtype=None):
         #ret = np.fromiter(iter(matches),dtype=dtype,count=len(matches))
         # lelt's just read it all as strings, and then deal with the
         # consequences later
-        retfloat = np.fromstring(str, dtype=float, sep=' ')
+
+        # get rid of trailing 'flags' on newlines, flags look like
+        # .C.C. and ICC.. at the end of lines
+        regex = re.compile("\t[\.RIC]{2,5}")
+        str_new = regex.sub('', str)
+        retfloat = np.fromstring(str_new, dtype=float, sep=' ')
         retfloat.shape=len(matches),-1
         ret = np.empty(len(matches),dtype=dtype)
 
@@ -536,8 +541,7 @@ Notes
 
 Though the functionality here *should* work with all formats produced by
 ``edf2asc`` -- it is most extensively tested with with .edf files proccessed
-with the following edf2asc parameter set:  ``-y -z -vel -res``
-
+with the following edf2asc parameter set:  ``-y -z -vel -res -nflags``
 
 Examples
 --------
