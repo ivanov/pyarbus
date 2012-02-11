@@ -39,6 +39,119 @@ Requirements
 
 - nitime (from Git, as of 2011-10-18)
 
+Example
+-------
+::
+
+  In [23]: import pyarbus
+  
+  In [24]: from pyarbus.tests import short_test_file
+  
+  In [25]: el = pyarbus.read_eyelink(short_test_file)
+  
+  In [26]: el.r # right eye data
+  Out[26]:
+  Eye:
+          TimeArray([ 13899085.,  13899086.,  13899087., ...,  13908082.,  13908083.,
+          13908084.], time_unit='ms')
+          {'pupA': masked_array(data = [3875.0 3874.0 3867.0 ..., 1588.0 1590.0 1594.0],
+               mask = [False False False ..., False False False],
+         fill_value = 1e+20)
+    , 'xres': masked_array(data = [24.2 24.2 24.2 ..., 25.6 25.6 25.6],
+               mask = [False False False ..., False False False],
+         fill_value = 1e+20)
+    , 'y': masked_array(data = [327.1 327.2 327.2 ..., 475.7 475.8 477.0],
+                 mask = [False False False ..., False False False],
+           fill_value = 1e+20)
+    , 'x': masked_array(data = [365.7 365.6 365.0 ..., 610.4 610.5 610.5],
+                 mask = [False False False ..., False False False],
+           fill_value = 1e+20)
+    , 'xv': masked_array(data = [-- -- -- ..., -0.4 -0.5 -0.5],
+                 mask = [ True  True  True ..., False False False],
+           fill_value = 1e+20)
+    , 'yres': masked_array(data = [25.5 25.5 25.5 ..., 27.7 27.7 27.7],
+                 mask = [False False False ..., False False False],
+           fill_value = 1e+20)
+    , 'yv': masked_array(data = [-- -- -- ..., 0.7 0.7 0.9],
+                 mask = [ True  True  True ..., False False False],
+           fill_value = 1e+20)
+  }
+  
+  In [27]: print el.l  # this is monocular data, so left eye is None
+  None
+  
+  In [28]: el.r.x
+  Out[28]:
+  masked_array(data = [365.7 365.6 365.0 ..., 610.4 610.5 610.5],
+               mask = [False False False ..., False False False],
+         fill_value = 1e+20)
+  
+  
+  In [29]: el.r.sacepochs
+  Out[29]:
+  Epochs([(13899265.0 ms, 13899287.0 ms), (13899394.0 ms, 13899408.0 ms), (13902078.0 ms, 13902104.0 ms), (13903000.0 ms, 13903021.0 ms), (13903339.0 ms, 13903371.0 ms), (13904212.0 ms, 13904264.0 ms), (13904442.0 ms, 13904483.0 ms), (13904708.0 ms, 13904723.0 ms), (13904892.0 ms, 13904957.0 ms), (13905162.0 ms, 13905185.0 ms), (13905684.0 ms, 13905697.0 ms), (13905948.0 ms, 13905985.0 ms), (13906228.0 ms, 13906258.0 ms), (13906404.0 ms, 13906447.0 ms), (13906747.0 ms, 13906765.0 ms), (13907322.0 ms, 13907401.0 ms), (13907766.0 ms, 13907794.0 ms)], as (start,stop) tuples)
+  
+  In [30]: el.r.pupA
+  Out[30]:
+  masked_array(data = [3875.0 3874.0 3867.0 ..., 1588.0 1590.0 1594.0],
+               mask = [False False False ..., False False False],
+         fill_value = 1e+20)
+  
+  In [31]: during_saccade  = el.r[el.r.sacepochs[4]]
+  
+  In [32]: during_saccade.x
+  Out[32]:
+  masked_array(data = [348.2 347.8 347.6 346.5 346.3 344.6 343.7 341.3 339.1 335.5 333.0 328.1
+   323.7 319.7 315.6 314.7 313.1 311.7 311.7 311.7 313.3 313.3 315.2 315.2
+   315.3 316.7 316.7 315.6 315.2 313.0 312.1 311.5],
+               mask = [False False False False False False False False False False False False
+   False False False False False False False False False False False False
+   False False False False False False False False],
+         fill_value = 1e+20)
+  
+  
+  In [33]: during_saccade.y
+  Out[33]:
+  masked_array(data = [363.0 363.0 362.8 362.3 362.3 363.7 365.3 365.5 367.7 368.1 371.8 374.2
+   376.0 378.2 382.1 384.7 386.0 389.5 390.2 390.7 390.7 389.7 387.7 387.7
+   385.7 383.0 380.2 379.1 376.8 376.8 376.8 376.1],
+               mask = [False False False False False False False False False False False False
+   False False False False False False False False False False False False
+   False False False False False False False False],
+         fill_value = 1e+20)
+  
+  In [34]: during_saccade.vel
+  Out[34]:
+  masked_array(data = [-- 0.0129398193923 0.0299923468798 0.0284499922247 0.0475870289105
+   0.0790078183227 0.076276294298 0.105381781955 0.129392460549
+   0.147789431206 0.19157977555 0.206206547975 0.187775556203 0.202036125135
+   0.160674261959 0.0901188754409 0.110041557531 0.0850538300641
+   0.0229007633588 0.0338913119245 0.0377063581096 0.0690588310646
+   0.0542967098007 0.0382220185382 0.0947345641721 0.108765761834
+   0.0778624397933 0.071856471239 0.0689702250133 0.0632653061224
+   0.0334206015821 --],
+               mask = [ True False False False False False False False False False False False
+   False False False False False False False False False False False False
+   False False False False False False False  True],
+         fill_value = 1e+20)
+  
+  
+  In [35]: import pyarbus.viz as viz
+  
+  In [36]: viz.plot_xyp(el.r)
+  
+  In [37]: viz.plot_xyp?
+  Type:       function
+  Base Class: <type 'function'>
+  String Form:<function plot_xyp at 0x3f901b8>
+  Namespace:  Interactive
+  File:       /home/pi/code/pyarbus/pyarbus/viz.py
+  Definition: viz.plot_xyp(eye, axes=None, subtract_t0=True)
+  Docstring:
+  Plots, on three separate subplots, the pupil area, x, and y position
+  reported by the eyetracker as a function of time.
+
+ 
 If you have any questions, my email address is ``pi berkeley edu`` with the
 appropriate characters replacing the spaces.
 
