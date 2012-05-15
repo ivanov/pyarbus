@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import nitime
+import pyarbus
 
 def plot_saccade_scatter(sac, ax=None):
     """
@@ -36,7 +37,7 @@ def plot_saccade_hist(sac, bins=36, ax=None):
 
 def plot_saccade_stats(sac,bins=36, fig=None):
     """
-    Draws individual saccades (polar coordinatess), directional histogram, 
+    Draws individual saccades (polar coordinatess), directional histogram,
     individual saccades (cartesian coordinates), and a histogram of saccade
     peak velocities
     """
@@ -75,6 +76,23 @@ def plot_xyp(eye, axes=None, subtract_t0=True):
     Plots, on three separate subplots, the pupil area, x, and y position
     reported by the eyetracker as a function of time.
     """
+    if isinstance(eye, pyarbus.Eyelink):
+        raise ValueError(
+          """This method can plot an Eye object, but you provided an Eyelink
+          object. Eyelink objects have either a left or a right eye (or both),
+          so pick one.
+
+          Example: if you called this function with:
+
+              viz.plot_xyp(o)
+
+          you should instead call it with:
+
+              plot_xyp(o.l)     # for left eye
+
+          or
+
+              plot_xyp(o.r)     # for right eye""")
     if axes is None:
         fig,axes = plt.subplots(3,1,sharex=True)
     t = eye.time
