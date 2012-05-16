@@ -1,3 +1,11 @@
+"""
+Utilities useful for eyetracking data analysis.
+
+Many of these are leveraged by the Eyelink and Eye classes, where methods on
+those classes call into this library of functions with the appropriate
+parameters, without having to pass all of them manually.
+"""
+
 import numpy as np
 
 def velocity(x,y,use_central=True, sampling_rate=None, xres=None,yres=None):
