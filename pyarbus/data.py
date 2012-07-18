@@ -432,14 +432,6 @@ follow a blink
             return self.l
 
     @property
-    def experiment(self):
-        """ the name of the python file that ran at the beginning of this
-        recording.
-
-        Just grabs it from the .msg[0] """
-        return self.msgs[0].split('/')[-1]
-
-    @property
     def samplingrate(self):
         """ the sampling rate taken from the RECCFG message"""
         return self._samplingrate or float([msg.split()[4] for msg in self.msgs if 'RECCFG' in msg][0])
