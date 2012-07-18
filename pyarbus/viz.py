@@ -109,6 +109,20 @@ def plot_xyp(eye, axes=None, subtract_t0=True):
     make_time_axis(axes[-1].xaxis, time_unit=eye.time.time_unit)
     axes[2].set_xlabel("Time (%s)" % eye.time.time_unit)
 
+def plot_xy_p(eye, axes=None, subtract_t0=True):
+    """
+    Same as :meth:`plot_xyp`, but plots the position on one axis, and the
+    pupil area on another.
+
+    See Also
+    --------
+    plot_xyp : plots each quantity on it own subplot by default
+    """
+    if axes is None:
+        fig, axes = plt.subplots(2,1, sharex=True)
+    axes = axes[0], axes[1], axes[-1]
+    plot_xyp(eye, axes, subtract_t0)
+
 def make_time_axis(axis=None,time_unit='s'):
     """
     Change formatter to interpret axis as a nitime TimeArray object

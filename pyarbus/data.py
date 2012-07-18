@@ -9,7 +9,9 @@ import nitime
 from nitime import Events, Epochs
 from StringIO import StringIO
 import gzip
+import inspect
 from . import utils
+from . import viz
 
 import logging
 logging.basicConfig()
@@ -452,6 +454,40 @@ follow a blink
     def fnamelong(self):
         """Long (full) filename of this recording"""
         return self._fnamelong
+
+    def plot_xyp(self, **kwargs):
+        """Plot the position and pupil area for this eye, each in its own
+        subplot.
+
+        If this Eyelink object has binocular data, two figures will be created
+        """
+        self._viz_defer(**kwargs)
+    
+    def plot_xy_p(self, **kwargs):
+        """Plot the position and pupil area for this eye, in two seperate
+        subplots.
+
+        If this Eyelink object has binocular data, two figures will be created
+        """
+        self._viz_defer(**kwargs)
+
+    def _viz_defer(self, **kwargs):
+        """
+        A helper method to unify calls to viz.plot_* methods for each eye
+
+        Notes
+        -----
+        This method should only be called by functions with names matching
+        functions in viz, that take an Eye as the first argument, since
+        _viz_defer uses the :mod:`inspect` module to resolve the calling
+        function's name.
+        """
+        if self.binocular:
+            eyes = [self.l, self.r]
+        else:
+            eyes = [self.eye_used]
+        for e in eyes:
+            viz.__dict__[inspect.stack()[1][3]](e, **kwargs)
 
 def reprocess_eyelink_msgs(pattern, msgs, cols=(0,), dtype=None):
     """
