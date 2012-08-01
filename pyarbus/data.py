@@ -22,6 +22,10 @@ __all__ = [ 'Eye','Eyelink', 'reprocess_eyelink_msgs', 'findall_loadtxt',
 'read_eyelink', 'read_eyelink_cached', 'EyelinkReplayer']
 
 # a dictionary to cache eyelink data in memory, used by read_eyelink_cached
+# XXX: come up with a better repr for the cache - maybe subclass dict and just
+# override the repr for saying how many objects are stored.  Something like
+# "expname.asc: subj: duration, binocular" - this would then be useful for
+# summarizing multiple experiments.
 _cache = {}
 
 # gaze_dtype dictionary which is meant to be indexed by the `binocular`
@@ -931,7 +935,7 @@ Examples
     f.close()
     return el
 
-def read_eyelink_cached(fname,d=_cache, **kwargs):
+def read_eyelink_cached(fname,d=None, **kwargs):
     """
     Read the asc file in `fname` into the dictionary `d` using
     read_eyelink(fname) and cache the results there. On subsequent calls, no
@@ -940,7 +944,8 @@ def read_eyelink_cached(fname,d=_cache, **kwargs):
     If passed only `fname`, a module-level dictionary is used for the
     in-memory caching. That dictionary can be accessed as pyarbus.data._cache
     """
-    #if d is None: return read_eyelink(fname)
+    if d is None:
+        d = _cache
 
     if d.has_key(fname) == False:
         d[fname] = read_eyelink(fname,**kwargs)
