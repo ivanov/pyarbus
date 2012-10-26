@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 
-import eyelib.parser as parser
+import eyelink.parser as parser
 p = parser.testParams
 
 def test_startstop():
