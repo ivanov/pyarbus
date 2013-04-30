@@ -2,8 +2,13 @@
 Visualization routines for pyarbus objects.
 """
 
-import matplotlib.pyplot as plt
+# If you are running nosetests right now, you might want to use 'agg' as a
+# backend:
 import matplotlib
+import sys
+if "nose" in sys.modules:
+    matplotlib.use('agg')
+import matplotlib.pyplot as plt
 import numpy as np
 import nitime
 import pyarbus
