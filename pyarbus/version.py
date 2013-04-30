@@ -34,14 +34,14 @@ long_description = """
  pyarbus: eyetracking data analysis
 ===================================================
 
-pyarbus is a library of tools and algorithms for the analysis of time-series data
-from eyetracking experiments.
+pyarbus is a library of tools and algorithms for the analysis of time-series
+data from eyetracking experiments.
 
 Website and mailing list
 ========================
 
-Current information can always be found at the pyarbus `website`_. Questions and
-comments can be directed to `Paul Ivanov`_.
+Current information can always be found at the pyarbus `website`_. Questions
+and comments can be directed to `Paul Ivanov`_.
 
 .. _website: http://pyarbus.pirsquared.org/
 .. _Paul Ivanov: http://pirsquared.org
@@ -71,7 +71,7 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
 All trademarks referenced herein are property of their respective holders.
 
-Copyright (c) 2009-2012, Paul Ivanov
+Copyright (c) 2009-2013, Paul Ivanov
 All rights reserved.
 """
 

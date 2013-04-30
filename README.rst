@@ -14,10 +14,6 @@ code, and it may still contain specifics unique to the way my experiments
 (which would be considered a bug and should be removed). Many docstrings have
 not yet been updated to reflect the changes introduced by the rewrite.
 
-Right now, 2011-10-18, pyarbus depends on `nitime`_ from Git.
-
-.. _nitime: http://github.com/nipy/nitime
-
 To start using pyarbus right away, just run::
     
     python setup.py develop
@@ -31,13 +27,13 @@ standard way, run::
 Requirements
 ------------
 
-- python 2.6
+- python >= 2.6 (not 3)
 
 - numpy
 
 - matplotlib
 
-- nitime (from Git, as of 2011-10-18)
+- nitime >= 0.4
 
 Example
 -------
