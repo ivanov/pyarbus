@@ -1,16 +1,18 @@
-right now, some of what we do is cached in memory (thanks to the
-one-time-properties)
-
-it'd be nice to use joblib to store computations on disk
-    - this might make sense for the computation expensive parts, not for just
-    reading ascii data by itself
-
-what about computing saccades using different algorithms, and caching those
-results, so as to be able to quickly switch between them?
-
-API Docs building, as well as a proper manual
-
-Examples of customized extensions via subclassing of Eye and Eyelink classes
-(like I did for JoV paper)
-
-EDF format reader (direct, without going through edf2ascii)
+[ ] right now, some of what we do is cached in memory (thanks to the
+    one-time-properties)
+    
+[ ] it'd be nice to use joblib to store computations on disk
+        - this might make sense for the computation expensive parts, not for just
+        reading ascii data by itself
+    
+[ ] what about computing saccades using different algorithms, and caching those
+    results, so as to be able to quickly switch between them?
+    
+[ ] API Docs building, as well as a proper manual
+    
+[ ] Examples of customized extensions via subclassing of Eye and Eyelink classes
+    (like I did for JoV paper)
+    
+[ ] EDF format reader (direct, without going through edf2ascii)
+    
+[ ] add a CONTRIBUTING.md
