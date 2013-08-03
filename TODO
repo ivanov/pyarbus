@@ -1,4 +1,4 @@
-right now, some of what we do is cached in memeory (thanks to the
+right now, some of what we do is cached in memory (thanks to the
 one-time-properties)
 
 it'd be nice to use joblib to store computations on disk
@@ -13,5 +13,4 @@ API Docs building, as well as a proper manual
 Examples of customized extensions via subclassing of Eye and Eyelink classes
 (like I did for JoV paper)
 
-release the current git version of nitime, so that users have an easier time
-meeting the requirements
+EDF format reader (direct, without going through edf2ascii)
