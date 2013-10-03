@@ -3,7 +3,8 @@
 from __future__ import unicode_literals
 
 AUTHOR = u'Paul Ivanov'
-SITENAME = u'Pyarbus - eyetracking analysis software written in python.'
+SITENAME = u'pyarbus'
+SITESUBTITLE = u'eyetracking analysis software written in python.'
 SITEURL = ''
 
 TIMEZONE = 'America/Los_Angeles'
@@ -11,6 +12,8 @@ TIMEZONE = 'America/Los_Angeles'
 DEFAULT_LANG = u'en'
 
 GITHUB_URL = 'http://github.com/ivanov/pyarbus'
+THEME = './themes/notmyidea'
+
 
 
 # Feed generation is usually not desired when developing
