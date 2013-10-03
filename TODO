@@ -17,4 +17,8 @@
     
 [ ] add a CONTRIBUTING.md
 
-[ ] make a website
+[x] make a website
+
+[ ] buildbot status grabbed async from webserver (like the travis badges)
+
+[ ] sample data shipped with pyarbus - provide simple api for using it
