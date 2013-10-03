@@ -15,10 +15,18 @@
     
 [ ] EDF format reader (direct, without going through edf2ascii)
     
-[ ] add a CONTRIBUTING.md
+[x] add a ./CONTRIBUTING.md
 
 [x] make a website
 
 [ ] buildbot status grabbed async from webserver (like the travis badges)
 
 [ ] sample data shipped with pyarbus - provide simple api for using it
+
+[ ] debian package uploaded to neurodebian
+
+[ ] simple ASCII parser (that takes columns) (leverage )
+
+[ ] scan path viz (using an epoch)
+
+[ ] rich repr for visualizing an object

@@ -30,3 +30,10 @@ from utils import velocity, acceleration
 #import viz
 
 from testlib import test
+
+def _path():
+    'a function that hides the os import from'
+    import os
+    return os.path.dirname(__file__)
+    
+path = _path()
