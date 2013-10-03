@@ -23,6 +23,7 @@ TRANSLATION_FEED_ATOM = None
 
 # Blogroll
 LINKS =  (('development', 'https://github.com/ivanov/pyarbus'),
+          ('buildbot status', 'http://nipy.bic.berkeley.edu/waterfall?show=pyarbus-py2.6'),
           ('SciPy Stack', 'http://scipy.org/about.html'),
           ('Python.org', 'http://python.org/'),
           )
