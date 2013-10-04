@@ -107,9 +107,12 @@ def plot_xyp(eye, axes=None, subtract_t0=True):
     t = eye.time
     if subtract_t0:
         t -= eye.time[0]
-    axes[0].plot(eye.time, eye.pupA)
-    axes[1].plot(eye.time, eye.x)
-    axes[2].plot(eye.time, eye.y)
+    # XXX: Bug in nitime? the code below used to work without having to cast
+    # the time as a numpy array.
+    time = np.asarray(eye.time)
+    axes[0].plot(time, eye.pupA)
+    axes[1].plot(time, eye.x)
+    axes[2].plot(time, eye.y)
     eye.time.time_unit = 's'
     make_time_axis(axes[-1].xaxis, time_unit=eye.time.time_unit)
     axes[2].set_xlabel("Time (%s)" % eye.time.time_unit)
