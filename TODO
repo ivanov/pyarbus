@@ -21,12 +21,14 @@
 
 [ ] buildbot status grabbed async from webserver (like the travis badges)
 
-[ ] sample data shipped with pyarbus - provide simple api for using it
+[x] sample data shipped with pyarbus - provide simple api for using it
 
 [ ] debian package uploaded to neurodebian
 
-[ ] simple ASCII parser (that takes columns) (leverage )
+[ ] simple ASCII parser (that takes columns) (leverage numpy.loadtxt)
 
 [ ] scan path viz (using an epoch)
 
 [ ] rich repr for visualizing an object
+
+[ ] incorporate code from Marianne Maertens for event extraction
