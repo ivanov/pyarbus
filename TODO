@@ -32,3 +32,9 @@
 [ ] rich repr for visualizing an object
 
 [ ] incorporate code from Marianne Maertens for event extraction
+
+[ ] python3 compliance (has to start with nitime)
+
+[ ] coveralls.io integration (with the buildbot) 
+
+[ ] put up on the cheeseshop
