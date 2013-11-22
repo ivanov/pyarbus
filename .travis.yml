@@ -2,6 +2,8 @@
 language: python
 python:
     - 2.7
+virtualenv:
+    system_site_packages: true
 before_install:
     # add NeuroDebvian repository
     - wget -O- http://neuro.debian.net/lists/precise.us-ca.libre | sudo tee /etc/apt/sources.list.d/neurodebian.sources.list
