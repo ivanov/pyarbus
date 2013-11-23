@@ -4,6 +4,7 @@ Library of functions related to eye movement data input/output
 from __future__ import with_statement
 
 import re
+import os
 import numpy as np
 import nitime
 from nitime import Events, Epochs
@@ -1039,3 +1040,18 @@ class EyelinkReplayer(object):
 
     def sendMessage(self, txt):
         log.info("Replayer got Eyelink MSG: '%s'",txt)
+
+
+def get_sample_data():
+    "A simple way to get a handle on "
+    sample_data_file = get_sample_data_filename()
+    return read_eyelink(sample_data_file)
+
+def get_sample_data_filename(short=False):
+    "return a sample filename, which can be read using read_eyelink"
+    import pyarbus
+    if short:
+        return os.path.join(pyarbus.path, 'data/pi_short.asc')
+    else:
+        return os.path.join(pyarbus.path, 'data/pi.asc.gz')
+

@@ -15,4 +15,26 @@
     
 [ ] EDF format reader (direct, without going through edf2ascii)
     
-[ ] add a CONTRIBUTING.md
+[x] add a ./CONTRIBUTING.md
+
+[x] make a website
+
+[ ] buildbot status grabbed async from webserver (like the travis badges)
+
+[x] sample data shipped with pyarbus - provide simple api for using it
+
+[ ] debian package uploaded to neurodebian
+
+[ ] simple ASCII parser (that takes columns) (leverage numpy.loadtxt)
+
+[ ] scan path viz (using an epoch)
+
+[ ] rich repr for visualizing an object
+
+[ ] incorporate code from Marianne Maertens for event extraction
+
+[ ] python3 compliance (has to start with nitime)
+
+[ ] coveralls.io integration (with the buildbot) 
+
+[ ] put up on the cheeseshop

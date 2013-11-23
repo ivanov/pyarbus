@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ SITENAME }} - All articles{% endblock %}
+{% block content %}
+{%- if dates %}
+
+<section id="content" class="body">
+<h1>All articles</h1>
+
+{#- this was take and modified from pelican-mockingbird theme #}
+{#- hold on to your butts! #}
+
+{% set month = None -%}
+{%- for article in dates -%}
+{% set cmonth = article.date.date().replace(day=1) %}
+{%- if not month -%}
+{%   set month = cmonth %}
+
+<dt>{{ article.date.strftime("%Y %B") }}<dt>
+{%- elif cmonth < month -%}
+{%   set month = cmonth %}
+    <dt>{{ article.date.strftime("%Y %B ") }}</dt>
+{%- endif %}
+
+<dd>{{ article.date.strftime("%d") }}: <a href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a></dd>
+{%- endfor %}
+
+{% else %}
+
+                <div class="post text pinned">
+                    <h2>No Posts</h2>
+                    <p>There aren't any posts in the timeframe specified.</p>
+                </div>
+                {% endif %}
+
+                <hr>
+
+</section>
+{% endblock %}

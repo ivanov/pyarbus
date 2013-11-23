@@ -1,17 +1,22 @@
 from __future__ import print_function
 from os import path
 import numpy as np
+import numpy.testing as npt
 import nitime
 import pyarbus
 
-pyarbus_path = path.dirname(pyarbus.__file__)
-data_path = path.join(pyarbus_path,'data')
 # these can be used in test
-gz_test_file = path.join(data_path,'pi.asc.gz')
-short_test_file = path.join(data_path,'pi_short.asc')
+gz_test_file = pyarbus.data.get_sample_data_filename()
+short_test_file = pyarbus.data.get_sample_data_filename(short=True)
+
 def test_read_eyelink():
     "Read a short eyelink file with discontinuous time points"
     return pyarbus.read_eyelink(short_test_file)
+
+def test_get_sample_data():
+    el = pyarbus.data.get_sample_data()
+    npt.assert_equal(el.__class__, pyarbus.data.Eyelink, "sample data broken")
+
 
 def test_read_eyelink_large():
     "Read a gunzipped .asc file (~10MB)"
