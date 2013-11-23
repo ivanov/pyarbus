@@ -1049,7 +1049,7 @@ def get_sample_data_filename(short=False):
     "return a sample filename, which can be read using read_eyelink"
     import pyarbus
     if short:
-        return os.path.join(pyarbus.path, 'data/pi_short.asc.gz')
+        return os.path.join(pyarbus.path, 'data/pi_short.asc')
     else:
         return os.path.join(pyarbus.path, 'data/pi.asc.gz')
 
