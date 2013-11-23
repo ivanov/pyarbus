@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import numpy.testing as npt
 
@@ -27,7 +28,7 @@ def test_start_at_end():
     v=np.zeros(21)
     v[17:19] = [30,40]
     starts,stops = parser.eyelink_event_parser(v[:-1],np.diff(v),p=p)
-    print len(v)
+    print(len(v))
     npt.assert_equal(starts, [17])
     npt.assert_equal(stops, [19])
 

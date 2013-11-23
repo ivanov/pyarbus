@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os import path
 import numpy as np
 import nitime
@@ -40,7 +41,7 @@ def test_cached_read():
     cached_time = toc-tic
     speedup = total_time / cached_time
     el.__extra_dummy # should *not* raise an attribute error
-    print "speedup = %.3fx" % speedup
+    print("speedup = %.3fx" % speedup)
     # the speedup in general depends on the file size, disk speed, and how fast
     # we read it, etc, but for the file on this test, I see speedups of ~ 500x
     # on my machine, so I'm just putting a conservative speedup assertion of at

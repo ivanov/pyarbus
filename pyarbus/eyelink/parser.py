@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 
 # from http://code.activestate.com/recipes/52308-the-simple-but-handy-collector-of-a-bunch-of-named/
@@ -75,8 +76,8 @@ def pitjb_online_parser_fast(v, p=None):
     # sample, but if it's true, we still may have avoided this sample, if
     # there's a sample before it that caused us to make a prediction further
     # into the past.
-    print mask
-    print v_over_thresh
+    print(mask)
+    print(v_over_thresh)
     if mask.sum() > 1:
         # now every peak thats at mask=True is the maximum until the end of its
         # predicted saccade. If there are any other peaks before this end, we
@@ -85,7 +86,7 @@ def pitjb_online_parser_fast(v, p=None):
         # account for this in the code? what a headache!
         mask2 = ends[mask][:-1] < v_over_thresh[mask][1:]
         mask[1:][~mask2] = False
-        print mask2
+        print(mask2)
 
     return v_over_thresh[mask]
 

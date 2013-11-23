@@ -7,7 +7,7 @@ import re
 import numpy as np
 import nitime
 from nitime import Events, Epochs
-from StringIO import StringIO
+from io import BytesIO
 import gzip
 import inspect
 from . import utils
@@ -429,7 +429,7 @@ follow a blink
         error if binocular"""
 
         if self.binocular:
-            raise AttributeError, "Container is binocular, both eyes are available"
+            raise AttributeError("Container is binocular, both eyes are available")
         if self.have_right:
             return self.r
         else:
@@ -505,14 +505,16 @@ def reprocess_eyelink_msgs(pattern, msgs, cols=(0,), dtype=None):
     temporary buffer and reprocessing it, but this allows me to reuse machinery
     that's already there. and LTS. -pi
     """
-    pat = "(?<=MSG.)\d+ "+pattern+".*"
-    return findall_loadtxt(pat, "\n".join(msgs), cols, dtype)
+    if not isinstance(pattern, bytes):
+        pattern = pattern.encode('ascii') # if this breaks, please report bug
+    pat = b"(?<=MSG.)\d+ "+pattern+b".*"
+    return findall_loadtxt(pat, b"\n".join(msgs), cols, dtype)
 
 
 def findall_loadtxt(pattern, raw, cols, dtype=None):
     matches = re.findall(pattern,raw, re.M)
-    str = "\n".join(matches)
-    tmp = StringIO(str)
+    str = b"\n".join(matches)
+    tmp = BytesIO(str)
     if len(matches) == 0:
         return np.array([])
 
@@ -532,8 +534,8 @@ def findall_loadtxt(pattern, raw, cols, dtype=None):
 
         # get rid of trailing 'flags' on newlines, flags look like
         # .C.C. and ICC.. at the end of lines
-        regex = re.compile("\t[\.RIC]{2,5}")
-        str_new = regex.sub('', str)
+        regex = re.compile(b"\t[\.RIC]{2,5}")
+        str_new = regex.sub(b'', str)
         retfloat = np.fromstring(str_new, dtype=float, sep=' ')
         retfloat.shape=len(matches),-1
         ret = np.empty(len(matches),dtype=dtype)
@@ -605,7 +607,7 @@ Examples
         #raw = mmap.mmap(tempf.fileno(), 0, access=mmap.ACCESS_READ)
         #raw = f.read()
     else:
-        f = file(filename)
+        f = open(filename, 'rb')
         #import mmap
         #raw = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
         #raw = f.read()
@@ -619,8 +621,8 @@ Examples
     # filter these redundant lines early, their E prefix counterparts contain all of the data
     # XXX: not true in HINAK075.ASC as parsed by before 2006 edf2asc - SSACS followed by blinks do not
     # have  a proper ESSAC after (but instead have a single sample long ESSAC)
-    for x in ["SFIX","SSACC","SBLINK"]:
-        raw = re.sub("\n"+x+".*","", raw)
+    for x in [b"SFIX",b"SSACC",b"SBLINK"]:
+        raw = re.sub(b"\n"+x+b".*",b"", raw)
 
     # from Eyelink manual 1.4 p 106:
     # Each type of event has its own line format. These use some of the data
@@ -646,7 +648,7 @@ Examples
                            ('x','float64'),
                            ('y','float64')])
 
-    gcdisp = findall_loadtxt("(?<=MSG.)\d+\ GCDISP.\d+.*",raw,(0,2,3),
+    gcdisp = findall_loadtxt(b"(?<=MSG.)\d+\ GCDISP.\d+.*",raw,(0,2,3),
             dtype=gc_gaze_dtype)
 
 
@@ -654,18 +656,18 @@ Examples
 
 
     #grab binocularity from the EVENTS GAZE line
-    start = re.search("^START.\d+\ [^\d].*", raw, re.M).group().upper()
-    samples_line = re.search("^SAMPLES.*", raw, re.M).group()
+    start = re.search(b"^START.\d+\ [^\d].*", raw, re.M).group().upper()
+    samples_line = re.search(b"^SAMPLES.*", raw, re.M).group()
     log.info(samples_line)
 
     binocular = False
-    have_right = start.find('RIGHT') != -1
-    have_left= start.find('LEFT') != -1
+    have_right = start.find(b'RIGHT') != -1
+    have_left= start.find(b'LEFT') != -1
     if have_right and have_left:
         binocular = True
 
-    velocity = "VEL" in samples_line
-    res = "RES" in samples_line
+    velocity = b"VEL" in samples_line
+    res = b"RES" in samples_line
 
     gcols, gdtype = get_gaze_col_dtype(binocular, velocity, res)
     verbose_string = " ".join(
@@ -705,21 +707,21 @@ Examples
     # XXX: for now, we'll only support monocular and binocular formats, will include others later
 
     #replace missing fields. with NaN XXX: should this NaN be user defined, instead of hardcoded?
-    raw = re.sub('   .\t','  nan\t',raw)
-    raw = re.sub('\.\.\.','',raw)
+    raw = re.sub(b'   .\t',b'  nan\t',raw)
+    raw = re.sub(b'\.\.\.',b'',raw)
 
 
     # the bulk of the time for this function is spent here - XXX: any speedup
     # in this code / approach will be very welcome. For example - setting cols
     # to None here speeds up the calls to np.loadtxt by about 50%
-    gaze = findall_loadtxt("^\d+.*",raw,'all',gdtype)
-    raw = re.sub("\n\d+.*","",raw) # get rid of lines which we've already
+    gaze = findall_loadtxt(b"^\d+.*",raw,'all',gdtype)
+    raw = re.sub(b"\n\d+.*",b"",raw) # get rid of lines which we've already
 
-    link_fix = findall_loadtxt("(?<=MSG.)\d+\ Fixation",raw,(0,),
+    link_fix = findall_loadtxt(b"(?<=MSG.)\d+\ Fixation",raw,(0,),
             dtype=np.uint64).astype(float)
 
     # get MSGs
-    msgsstr = re.findall("^MSG.\d+\ .*", raw, re.M)
+    msgsstr = re.findall(b"^MSG.\d+\ .*", raw, re.M)
 
     #NOTE: If the eyetracking data contains calibrations, then saccade
     #and blinks times will be off. Time series assumes all data sampled
@@ -736,7 +738,7 @@ Examples
     missing_tstamp= np.array([])
 
     #Use the eyelink-reported samplerate
-    samplingrate = findall_loadtxt("RATE[\t ]*\d+.\d*",raw,(1,))
+    samplingrate = findall_loadtxt(b"RATE[\t ]*\d+.\d*",raw,(1,))
     dt = int(1000/samplingrate[0])
 
     #XXX: throw error if diff.gaze(['time']) is ever either 0 or negative (samples repeated or out of order)
@@ -767,7 +769,7 @@ Examples
     for fn in gaze.dtype.names:
         gaze[fn] = tmp[fn]
 
-    raw= re.sub("\nMSG.*","", raw) # extracted
+    raw= re.sub(b"\nMSG.*", b"", raw) # extracted
 
     # See Notes in the Eyelink class docstring
     # Basically, all we need to do is find those ESACC events which are
@@ -778,8 +780,8 @@ Examples
     #...but life's too short for now
 
     # convert endblinks to fixed length (so we can use lookback)
-    blinks_r = findall_loadtxt("(?<=EBLINK.)R\ \d+\t\d+",raw,(1,2))
-    blinks_l = findall_loadtxt("(?<=EBLINK.)L\ \d+\t\d+",raw,(1,2))
+    blinks_r = findall_loadtxt(b"(?<=EBLINK.)R\ \d+\t\d+",raw,(1,2))
+    blinks_l = findall_loadtxt(b"(?<=EBLINK.)L\ \d+\t\d+",raw,(1,2))
     blinks_r.shape = -1,2
     blinks_l.shape = -1,2
 
@@ -789,22 +791,22 @@ Examples
     def grab_raw_monocular(raw,eye='R'):
         """ this function removes any lines that pertain to the oposite eye"""
         raw_ret = raw
-        omit = " L"
+        omit = b" L"
         if eye=='L':
-            omit = " R"
-        for x in ["EBLINK","ESACC","EFIX"]:
-            raw_ret = re.sub(x+omit+".*\n","",raw_ret)
+            omit = b" R"
+        for x in [b"EBLINK",b"ESACC",b"EFIX"]:
+            raw_ret = re.sub(x+omit+b".*\n",b"",raw_ret)
 
         return raw_ret
 
     raw_l = grab_raw_monocular(raw,'L')
     raw_r = grab_raw_monocular(raw,'R')
-    raw_l= re.sub("EBLINK.*","EBLINK",raw_l)
-    raw_r= re.sub("EBLINK.*","EBLINK",raw_r)
+    raw_l= re.sub(b"EBLINK.*",b"EBLINK",raw_l)
+    raw_r= re.sub(b"EBLINK.*",b"EBLINK",raw_r)
     #1/0
     # lookback and return endsaccades which are preceded by an endblink
-    discard_r = findall_loadtxt("(?<=EBLINK\nESACC...).*\d+\t\d+",raw_r,(0,1))
-    discard_l = findall_loadtxt("(?<=EBLINK\nESACC...).*\d+\t\d+",raw_l,(0,1))
+    discard_r = findall_loadtxt(b"(?<=EBLINK\nESACC...).*\d+\t\d+",raw_r,(0,1))
+    discard_l = findall_loadtxt(b"(?<=EBLINK\nESACC...).*\d+\t\d+",raw_l,(0,1))
     # XXX: separate timestamp gaps with blinks (and maybe have a method that
     # reports the OR of all the crap
     if have_right:
@@ -817,25 +819,25 @@ Examples
     #get rid of lines containing falsely reported ESACCS which were preceded by EBLINK
     # XXX: now I'm getting paranoid - are we excluding more ESACCs than we
     # should if there were multiple blinks ?
-    raw_r = re.sub("(?<=EBLINK)\nESACC.*","",raw_r)
-    raw_l = re.sub("(?<=EBLINK)\nESACC.*","",raw_l)
+    raw_r = re.sub(b"(?<=EBLINK)\nESACC.*",b"",raw_r)
+    raw_l = re.sub(b"(?<=EBLINK)\nESACC.*",b"",raw_l)
     # lookback and return endsaccades (see DATA NOTATIONS for <codes>)
     #ESACC   <eye> <stime> <etime> <dur> <sxp> <syp> <exp> <eyp> <ampl> <pv>
 
-    saccades_r = findall_loadtxt("(?<=ESACC...).*",raw_r,(0,1,7,8,3,4,5,6)).astype(float)
-    saccades_l = findall_loadtxt("(?<=ESACC...).*",raw_l,(0,1,7,8,3,4,5,6)).astype(float)
+    saccades_r = findall_loadtxt(b"(?<=ESACC...).*",raw_r,(0,1,7,8,3,4,5,6)).astype(float)
+    saccades_l = findall_loadtxt(b"(?<=ESACC...).*",raw_l,(0,1,7,8,3,4,5,6)).astype(float)
     saccades_r.shape = -1,8
     saccades_l.shape = -1,8
 
     # (see DATA NOTATIONS for <codes>)
     #EFIX <eye> <stime> <etime> <dur> <axp> <ayp> <aps>
-    fix_r= findall_loadtxt("(?<=EFIX...).*",raw_r,(0,1,3,4,5)).astype(float)
-    fix_l= findall_loadtxt("(?<=EFIX...).*",raw_l,(0,1,3,4,5)).astype(float)
+    fix_r= findall_loadtxt(b"(?<=EFIX...).*",raw_r,(0,1,3,4,5)).astype(float)
+    fix_l= findall_loadtxt(b"(?<=EFIX...).*",raw_l,(0,1,3,4,5)).astype(float)
     fix_r.shape = -1,5
     fix_l.shape = -1,5
 
-    raw = re.sub("\n[ES]SACC.*","",raw)  # get rid of lines which we've already
-    raw = re.sub("\n[ES]BLINK.*","",raw) # extracted
+    raw = re.sub(b"\n[ES]SACC.*",b"",raw)  # get rid of lines which we've already
+    raw = re.sub(b"\n[ES]BLINK.*",b"",raw) # extracted
 
     el = Eyelink(fname=filename, binocular=binocular, have_right=have_right,
             have_left=have_left, have_vel=velocity, have_res=res,
@@ -947,7 +949,7 @@ def read_eyelink_cached(fname,d=None, **kwargs):
     if d is None:
         d = _cache
 
-    if d.has_key(fname) == False:
+    if (fname in d) == False:
         d[fname] = read_eyelink(fname,**kwargs)
     else:
         log.info("Using cached version of %s", fname)

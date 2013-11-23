@@ -24,7 +24,7 @@ def test_read_custom_eyelink():
 
             ...and makes e.experiment be just `test_movieqt`
             """
-            return self.msgs[0].split(' ')[-1].split('.')[0]
+            return self.msgs[0].split(b' ')[-1].split(b'.')[0].decode('ascii')
 
     customized = pyarbus.read_eyelink(short_test_file, Eyelink=CustomizedEyelink)
     npt.assert_(hasattr(customized, 'experiment'))

@@ -17,16 +17,16 @@ have all of these things at their fingertips.
 
 __docformat__ = 'restructuredtext'
 
-from version import  __version__
+from .version import  __version__
 
-import algorithms
+from . import algorithms
 
-from data import *
+from .data import *
 
-import utils
+from . import utils
 
-from utils import velocity, acceleration
+from .utils import velocity, acceleration
 
 #import viz
 
-from testlib import test
+from .testlib import test
