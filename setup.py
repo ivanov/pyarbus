@@ -13,7 +13,8 @@ from distutils.core import setup
 
 # Get version and release info, which is all stored in pyarbus/version.py
 ver_file = os.path.join('pyarbus', 'version.py')
-execfile(ver_file)
+with open(ver_file) as f:
+    exec(f.read())
 
 opts = dict(name=NAME,
             maintainer=MAINTAINER,
