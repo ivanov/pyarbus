@@ -7,11 +7,15 @@ virtualenv:
     system_site_packages: true
 before_install:
     # add NeuroDebvian repository
+    - export PYSUF=`echo $TRAVIS_PYTHON_VERSION | cut -b 1`
+    - if [ $PYSUF == 2 ]; then export PYSUF=''; fi
     - wget -O- http://neuro.debian.net/lists/precise.us-ca.libre | sudo tee /etc/apt/sources.list.d/neurodebian.sources.list
     - sudo apt-key adv --recv-keys --keyserver pgp.mit.edu 2649A5A9
+    - sudo add-apt-repository -y ppa:takluyver/python3
     - sudo apt-get update
-    - sudo apt-get install python-matplotlib python-nitime
+    - sudo apt-get install  python$PYSUF-matplotlib python$PYSUF-setuptools python$PYSUF-nose
+    - sudo easy_install$PYSUF nitime # Latest pypi
 install:
     - python setup.py install -q 
 script:
-    nosetests pyarbus
+    nosetests$PYTHON pyarbus
