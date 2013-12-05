@@ -15,7 +15,7 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install  python$PYSUF-matplotlib python$PYSUF-setuptools python$PYSUF-nose
       # Python3 version of nitime not up on PyPI yet
-    - pip$PYSUF install --user -e git://github.com/nipy/nitime.git#egg=nitime
+    - pip install -e git://github.com/nipy/nitime.git#egg=nitime
 install:
     - python setup.py install -q 
 script:
