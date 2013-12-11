@@ -2,7 +2,7 @@
 language: python
 python:
     - 2.7
-    - 3.3
+    - 3.2
 virtualenv:
     system_site_packages: true
 before_install:
@@ -15,7 +15,6 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install  python$PYSUF-matplotlib python$PYSUF-setuptools python$PYSUF-nose
       # Python3 version of nitime not up on PyPI yet
-    - pip install --use-mirrors numpy
     - pip install -e git://github.com/nipy/nitime.git#egg=nitime
 install:
     - python setup.py install -q 
