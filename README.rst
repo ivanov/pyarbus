@@ -30,7 +30,7 @@ standard way, run::
 Requirements
 ------------
 
-- python >= 2.6 (not 3)
+- python >= 2.6 or >= 3.2
 
 - numpy
 
